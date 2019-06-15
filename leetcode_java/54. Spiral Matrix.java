@@ -4,21 +4,22 @@ import java.util.List;
 class Solution {
     public List<Integer> spiralOrder(int[][] matrix) {
         List<Integer> res = new ArrayList<>();
+        if (matrix.length == 0) return res;
         int h = matrix.length, l = matrix[0].length;
         int i = 0, j = -1;
-        while(true){
-            for(int k = 0; k < l; k++)
+        while (true) {
+            for (int k = 0; k < l; k++)
                 res.add(matrix[i][++j]);
-            if(--h == 0) break;
-            for(int k = 0; k < h; k++)
+            if (--h == 0) break;
+            for (int k = 0; k < h; k++)
                 res.add(matrix[++i][j]);
-            if(--l == 0) break;
-            for(int k = 0; k < l; k++)
+            if (--l == 0) break;
+            for (int k = 0; k < l; k++)
                 res.add(matrix[i][--j]);
-            if(--h == 0) break;
-            for(int k = 0; k < h; k++)
-                res.add(matrix[++i][j]);
-            if(--l == 0) break;
+            if (--h == 0) break;
+            for (int k = 0; k < h; k++)
+                res.add(matrix[--i][j]);
+            if (--l == 0) break;
         }
         return res;
     }
