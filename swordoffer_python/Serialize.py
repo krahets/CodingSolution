@@ -14,12 +14,15 @@ root.right.right = TreeNode(7)
 class Solution:
     def Serialize(self, root):
         # write code here
-        res = []
-        if not root: return '#'
-        res.append(str(root.val))
-        res.append(self.Serialize(root.left))
-        res.append(self.Serialize(root.right))
-        return ",".join(res)
+        return self.serialize(root)[:-1]
+
+    def serialize(self, root):
+        res = ""
+        if not root: return '#,'
+        res += str(root.val) + ','
+        res += self.serialize(root.left)
+        res += self.serialize(root.right)
+        return res
 
     def Deserialize(self, s):
         root, i = self.deserialize(s.split(","),0)
