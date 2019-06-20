@@ -1,23 +1,13 @@
 class Solution:
-    # two pointers
-    def isPalindrome(self, x: int) -> bool:
-        s = str(x)
-        l, r = 0, len(s)-1
-        while l < r:
-            if s[l] != s[r]: return False
-            l += 1
-            r -= 1
-        return True
-
     # half-reverse
-    def isPalindrome1(self, x: int) -> bool:
-        r = 0
-        if 0 <= x < 10: return True
-        if x < 0 or x % 10 == 0: return False
-        while x > r:
-            x, rem = x // 10, x % 10
-            r = r * 10 + rem
-        return x == r or x == r // 10
+    def isPalindrome(self, x: int) -> bool:
+        if x < 0: return False
+        ori, rev = x, 0
+        while ori:
+            rev = rev * 10 + ori % 10
+            ori //= 10
+        return ori == rev
+
 
 s = Solution()
-print(s.isPalindrome1(3001))
+print(s.isPalindrome(3001))

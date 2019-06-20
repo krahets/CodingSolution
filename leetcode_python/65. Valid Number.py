@@ -1,37 +1,41 @@
 import re
 
+
 class Solution:
     def isNumber(self, s: str) -> bool:
-        # 前后空格
-        # 以e为分界线，前面可以有小数点，后面不可以有，前后两部分都可以有正负号
-        s = s.strip(' ')
-        if not s: return False
-        i = 0
-        length = len(s)
-        while i < length and s[i] != 'e': i += 1
-        if i in [0, length - 1]: return False
-        i, end = 0, i
-        if i < end and s[i] in ['+', '-']: i += 1
-        while i < end:
-            if s[i] == '.':
-                i += 1
-                break
-            if not '0' <= s[i] <= '9': break
-            i += 1
-        if (i >= end or not '0' <= s[i] <= '9') and (i < 2 or not '0' <= s[i-2] <= '9') and s[i-1] == '.':
-            return False
-        while i < end and '0' <= s[i] <= '9': i += 1
-        if i != end: return False
-        if i == length: return True
-        i += 1
-        if i < length and s[i] in ['+', '-']: i += 1
-        while i < length and '0' <= s[i] <= '9': i += 1
-        if i != length: return False
-        return True
+        states = [
+            { 'b': 0, 's': 1, 'd': 2, '.': 4 }, # 0. start
+            { 'd': 2, '.': 4 } ,                # 1. 'sign' before 'e'
+            { 'd': 2, '.': 3, 'e': 5, 'b': 8 }, # 2. 'digit' before 'dot'
+            { 'd': 3, 'e': 5, 'b': 8 },         # 3. 'dot' with 'digit'
+            { 'd': 3 },                         # 4. no 'digit' before 'dot'
+            { 's': 6, 'd': 7 },                 # 5. 'e'
+            { 'd': 7 },                         # 6. 'sign' after 'e'
+            { 'd': 7, 'b': 8 },                 # 7. 'digit' after 'e'
+            { 'b': 8 }                          # 8. end with
+        ]
+        p = 0
+        for c in s:
+            if '0' <= c <= '9': typ = 'd'
+            elif c == ' ': typ = 'b'
+            elif c == '.': typ = '.'
+            elif c == 'e': typ = 'e'
+            elif c in "+-": typ = 's'
+            else: typ = '?'
+            if typ not in states[p]: return False
+            p = states[p][typ]
+        return p in [2, 3, 7, 8]
 
     def isNumber1(self, s: str) -> bool:
         return not not re.findall(re.compile(r'^[\+\-]?(\d+\.\d+|\.\d+|\d+\.|\d+)(e[\+\-]?\d+)?$'), s.strip())
 
 
 s = Solution()
-print(s.isNumber1("4.ee2"))
+print(s.isNumber("2e0"))
+print(s.isNumber("1 5"))
+print(s.isNumber("2e0"))
+print(s.isNumber("+3e-2"))
+print(s.isNumber("+3.2e-2"))
+print(s.isNumber("+3.2e-2.2"))
+print(s.isNumber("."))
+print(s.isNumber("e"))

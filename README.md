@@ -4,6 +4,1205 @@ This repository includes coding solutions of Leetcode and 剑指offer using Pyth
 ## LeetCode
 The solutions of leetcode are updated daily, while using [Python](./leetcode_python) and [Java](./leetcode_java).
 
+---
+
+### 1.two-sum
+> 
+>> 标签：数组，哈希表Hash
+
+---
+
+- 建立HashMap，遍历数组`nums`，`key`存储`nums[i]`，`value`存储`i`；
+- 遍历过程中，判断HashMap里是否有`target - nums[i]`的`key`值，若有直接返回两个数字index。
+
+```python []
+class Solution:
+    def twoSum(self, nums, target):
+        dic = {}
+        for i in range(len(nums)):
+            if str(target - nums[i]) in dic:
+                return [dic[str(target - nums[i])], i]
+            dic[str(nums[i])] = i
+```
+```java []
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for(int i = 0; i < nums.length;i++) {
+            int x = nums[i];
+            if(map.containsKey(target - x)){
+                return new int[] { map.get(target-x), i};
+            }
+            map.put(x, i);
+        }
+        return null;
+    }
+}
+```
+
+---
+
+### 2. Add Two Numbers
+> 
+>> 标签：链表
+
+---
+
+- 模拟整个做加法的过程，`carry`记录进位，需要注意两点：
+  - 由于两链表长度可能不同，因此在做加法时，要将超出短链表的值填`0`再计算；
+  - 当`l1`，`l2`都遍历完后，还需要判断是否有进位，如果有需要再添一位`1`。
+
+```python []
+class Solution:
+    def addTwoNumbers(self, l1: ListNode, l2: ListNode) -> ListNode:
+        carry = 0
+        head = ListNode(0)
+        res = head
+        while l1 or l2:
+            num1 = l1.val if l1 else 0
+            num2 = l2.val if l2 else 0
+            tmp = num1 + num2 + carry
+            carry = 1 if tmp >= 10 else 0
+            head.next = ListNode(tmp % 10)
+            head = head.next
+            if l1: l1 = l1.next
+            if l2: l2 = l2.next
+        if carry: head.next = ListNode(1)
+        return res.next
+```
+```java []
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode head = new ListNode(0);
+        ListNode res = head;
+        int carry = 0;
+        while(l1 != null || l2!= null){
+            int num1 = l1 != null ? l1.val : 0;
+            int num2 = l2 != null ? l2.val : 0;
+            int tmp = num1 + num2 + carry;
+            carry = tmp / 10;
+            head.next = new ListNode(tmp % 10);
+            head = head.next;
+            if(l1 != null) l1 = l1.next;
+            if(l2 != null) l2 = l2.next;
+        }
+        if(carry == 1) head.next = new ListNode(1);
+        return res.next;
+    }
+}
+```
+
+---
+
+### 3. Longest Substring Without Repeating Characters
+> 
+>> 标签：双指针，哈希表Hash，字符串
+
+---
+
+- 设定左右双指针`l`和`r`，遍历字符串；
+- 哈希表存储某字符`s[i]`最新在字符串中出现的位置`index + 1`，`key, value`对应`s[i], i`；
+- 左指针在遍历过程中：
+  - 若`s[i]`不在HashMap中，则跳过；
+  - 否则，`l`指针设定为`l`和`dic[s[r]]`的最大值，即修改之后，保证新字符串中没有重复字符。
+  - 每次更新长度最大值`res`。
+
+```python []
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        dic = {}
+        l, res = 0, 0
+        for r in range(len(s)):
+            if s[r] in dic:
+                l = max(dic[s[r]], l)
+            dic[s[r]] = r + 1
+            res = max(res, r - l + 1)
+        return res
+```
+```java []
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int res = 0;
+        Map<Character, Integer> map = new HashMap<>();
+        for (int i = 0, j = 0; j < s.length(); j++) {
+            if (map.containsKey(s.charAt(j))) {
+                i = Math.max(map.get(s.charAt(j)), i);
+            }
+            map.put(s.charAt(j), j + 1);
+            res = Math.max(res, j - i + 1);
+        }
+        return res;
+    }
+}
+```
+
+---
+
+### 5. Longest Palindromic Substring
+> 
+>> 标签：字符串，双指针
+
+---
+
+- 遍历`s`，以每个`char`以及两个`char`中点为中心，计算以此点为中心的最长回文串；
+  - 例如： 字符串`abcba` 共有5（字母） + 4（两字母间） = 9个中心点；
+  - 因此，长度为`N`的string共有`2N-1`个中心。
+- 我们的目标就是统计以这`2N-1`个点为中心的最长回文串`s1,s2,..,s2N-1`，并从中挑出全局最长回文串。
+- 保留最大长度回文串`index`，记为`left`和`right`；
+- 完成遍历后返回以`left`和`right`为边界的substring。
+
+
+```python []
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        left, right = 0, 0
+        for i in range(len(s)):
+            odd = self.mid_expand(s, i, i)
+            even = self.mid_expand(s, i, i+1)
+            m = max(odd, even)
+            if m > right - left:
+                left = i - (m - 1) // 2
+                right = i + m // 2
+        return s[left:right+1]
+
+    def mid_expand(self, s, left, right):
+        while left >= 0 and right < len(s) and s[left] == s[right]:
+            left -= 1
+            right += 1
+        return right - left - 1
+```
+```java []
+class Solution {
+    public String longestPalindrome(String s) {
+        if(s.length() == 0) return "";
+        int left = 0, right = 0;
+        for (int i = 0; i < s.length(); i++) {
+            int odd = midExpand(s, i, i);
+            int even = midExpand(s, i, i + 1);
+            int m = Math.max(odd, even);
+            if (m > right - left) {
+                left = i - (m - 1) / 2;
+                right = i + m / 2;
+            }
+        }
+        return s.substring(left, right + 1);
+    }
+
+    private int midExpand(String s, int left, int right) {
+        while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
+            left--;
+            right++;
+        }
+        return right - left - 1;
+    }
+}
+```
+
+---
+
+### 7. Reverse Integer
+> 
+>> 标签：位运算
+
+---
+
+- 思路为对当前数取对10的余数，再一项项填入res尾部，即可完成int翻转。
+- 难点在于如何处理边界情况，int取值范围为`[-2^31, 2^31 - 1]`，如果翻转数字溢出，则立即`return 0`。
+  - `python`存储数字理论上是无限长度，因此每次计算完后判断`res`与`of`的大小即可；
+  - `java`数字计算会溢出，因此要判断`res`和`of / 10`的大小关系（即确定再添一位一定会溢出）。
+- python负数取余操作与java不同，由于python的`//`操作是向下取整，导致正负数取余操作结果不一致，因此python需要将原数字转为正数操作。
+
+```python
+class Solution:
+    def reverse(self, x: int) -> int:
+        y, res = abs(x), 0
+        of = (1 << 31) - 1 if x > 0 else 1 << 31
+        while y != 0:
+            res = res * 10 + y % 10
+            if res > of: return 0
+            y //= 10
+        return res if x > 0 else -res
+```
+
+```java
+class Solution {
+    public int reverse(int x) {
+        int res = 0;
+        int of = ((1 << 31) - 1) / 10;
+        while (x != 0) {
+            if (Math.abs(res) > ((1 << 31) - 1) / 10) return 0;
+            res = res * 10 + x % 10;
+            x /= 10;
+        }
+        return res;
+    }
+}
+```
+
+---
+
+
+### 8. String to Integer (atoi)
+> 
+>> 标签：字符串
+
+---
+
+1. 过滤空格；
+2. 判断是否为正负号并存储；
+3. 得到int数字；
+4. 处理溢出；
+5. 根据正负号返回。
+
+```python
+class Solution:
+    def myAtoi(self, s: str) -> int:
+        i, res, neg, over = 0, 0, False, (1 << 31) - 1
+        while i < len(s) and s[i] == ' ': # ignore space first
+            i += 1
+        if i < len(s) and (s[i] == '-' or s[i] == '+'): # save '-'
+            neg = s[i] == '-'
+            i += 1
+        while i < len(s) and '0' <= s[i] <= '9': # generate number
+            res = res * 10 + int(s[i])
+            i += 1
+        if res > over: # handle the overflow
+            res = over + 1 if neg else over
+        return -res if neg else res
+```
+
+---
+
+### 9. Palindrome Number
+> 
+>> 标签：运算机制
+
+---
+
+- 首先，考虑`双指针法`，但`int`类型无法遍历每一位，转化为`str`需要额外空间，不符合题意；
+- 其次，考虑`数字反转`，若反转后数字和原数字一样则为回文；
+- 本解采用半倒置，即只取数字后一半并反转：
+  - 由于return的判断机制，`x % 10 == 0`要直接返回false；
+  - `x < 0`直接返回false。
+
+```python []
+class Solution:
+    def isPalindrome(self, x: int) -> bool:
+        if x < 0 or not x % 10 and x: return False
+        r = 0
+        while x > r:
+            x, rem = x // 10, x % 10
+            r = r * 10 + rem
+        return x == r or x == r // 10
+```
+```java []
+class Solution {
+    public boolean isPalindrome(int x) {
+        if(x < 0 || x % 10 == 0 && x != 0) return false;
+        int y = 0;
+        while(x > y){
+            y = y * 10 + x % 10;
+            x = x / 10;
+        }
+        return x == y || x == y / 10;
+    }
+}
+```
+
+---
+
+### 12. Integer to Roman
+> 
+>> 标签：字符串
+
+---
+
+- 将整数转化为roman字符串，总体思路是先处理高位字符，舍去高位后再处理低位字符。如`1437`，先将`1000`的字符加入，再处理`437`，将`400`字符加入，再处理`37`……
+- 有两种特例需要处理`9xx`，`4xx`，但总体上还是可以约化为先处理高位再处理低位的问题，如`1900`，先加入`1000`，再加入特例`900`……
+- 开辟两个数组分别存储数字和对应字符，对`num`处理算出当前位需要几个字符，`k++`遍历下个字符，直到`num = 0`时返回。
+
+```python []
+class Solution:
+    def intToRoman(self, num: int) -> str:
+        res = ""
+        values = [1000, 900, 500, 400,
+                  100, 90, 50, 40,
+                  10, 9, 5, 4,
+                  1]
+        symbols = ['M', 'CM', 'D', 'CD',
+                   'C', 'XC', 'L', 'XL',
+                   'X', 'IX', 'V', 'IV',
+                   'I']
+        i = 0
+        while num > 0:
+            count = num // values[i]
+            res += "".join([symbols[i] for _ in range(count)])
+            num -= count * values[i]
+            i += 1
+        return res
+```
+```java []
+class Solution {
+    private static final int[] values = {
+        1000, 900, 500, 400,
+        100, 90, 50, 40,
+        10, 9, 5, 4,
+        1};
+    private static final String[] symbols = {
+        "M", "CM", "D", "CD",
+        "C", "XC", "L", "XL",
+        "X", "IX", "V", "IV",
+        "I"};
+    public String intToRoman(int num) {
+        StringBuilder res = new StringBuilder();
+        int k = 0;
+        while(num > 0){
+            int count = num / values[k];
+            for(int i = 0; i< count;i++){
+                res.append(symbols[k]);
+                num -= values[k];
+            }
+            k++;
+        }
+        return res.toString();
+    }
+}
+```
+
+---
+
+### 13. Roman to Integer
+> 
+>> 标签：字符串，哈希表Hash
+
+---
+
+- 整体思路是用`Hash`存储`字符key`和`数字value`的关系，然后遍历roman字符串，在Hash表中取得对应数字加到结果中，遍历完成后返回；
+- `Python`可以用字典做；`Java`可以用HashMap做，本题解两语言细节方法不同：
+  - `Python`代码将两个字母的判断优先级放的更高，这样是为了优先处理`40`、`90`等由两个`char`表示的数字；
+  - `Java`代码在遍历过程中记录上个字符，判断当前字符和上个字符关系再进行操作。
+
+
+```python []
+class Solution:
+    def romanToInt(self, s: str) -> int:
+        dic =  {'M':1000, 'CM': 900, 'D': 500, 'CD': 400, 
+                'C':100, 'XC':90, 'L':50, 'XL':40,
+                'X':10, 'IX': 9, 'V':5, 'IV':4,
+                'I':1}
+        i = res = 0
+        while i < len(s):
+            if i+1 < len(s) and s[i] + s[i+1] in dic:
+                res += dic[s[i] + s[i+1]]
+                i += 2
+            elif s[i] in dic:
+                res += dic[s[i]]
+                i += 1
+        return res
+```
+```java []
+class Solution {
+    private Map<Character, Integer> roman = new HashMap<Character, Integer>() {
+        {
+            put('M', 1000);
+            put('D', 500);
+            put('C', 100);
+            put('L', 50);
+            put('X', 10);
+            put('V', 5);
+            put('I', 1);
+        }
+    };
+
+    public int romanToInt(String s) {
+        int res = 0, pre = 0;
+        for(Character c : s.toCharArray()){
+            int cur = roman.get(c);
+            res += cur > pre ? cur - 2 * pre : cur;
+            pre = cur;
+        }
+        return res;
+    }
+}
+```
+
+---
+
+### 20. Valid Parentheses
+> 
+>> 标签：栈，哈希表Hash
+
+---
+
+- 借助栈先入后出的特点，正好符合此题目的要求。
+- 建立Map构建左右括号对应关系。
+- 遍历`str`将`char`依次入栈，每次判断是否是正确对应括号，如果是则出栈，最终如果`stack`为空则是valid的。
+
+```python []
+class Solution:
+    def isValid(self, s: str) -> bool:
+        dic = {'{': '}',  '[': ']', '(': ')'}
+        stack = []
+        for i in range(len(s)):
+            if stack and stack[-1] in dic.keys() and s[i] == dic[stack[-1]]:
+                stack.pop()
+            else:
+                stack.append(s[i])
+        return not stack
+```
+```java []
+class Solution {
+    private static final Map<Character,Character> map = new HashMap<Character,Character>(){{
+        put('{','}'); put('[',']'); put('(',')');
+    }};
+    public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<>();
+        for(Character c : s.toCharArray()){
+            if(!stack.isEmpty() && map.containsKey(stack.peek()) && map.get(stack.peek()) == c){
+                stack.pop();
+            } else {
+                stack.push(c);
+            }
+        }
+        return stack.isEmpty();
+    }
+}
+```
+
+---
+
+### 21. Merge Two Sorted Lists
+> 
+>> 标签：双指针，链表
+
+---
+
+- 建立一个辅助`node`作为链表头部；
+- 设两指针`l1`，`l2`分别指向两链表头部，根据指针`node`值大小改变`next`指向，交替前进；
+- 最后将`l1`、`l2`剩余尾部加入，返回即可。
+
+
+```python []
+class Solution:
+    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
+        head = ListNode(0)
+        res = head
+        while l1 and l2:
+            if l1.val <= l2.val: head.next, l1 = l1, l1.next
+            else: head.next, l2 = l2, l2.next
+            head = head.next
+        head.next = l1 if not l2 else l2
+        return res.next
+```
+```java []
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode head = new ListNode(0);
+        ListNode res = head;
+        while (l1 != null && l2 != null) {
+            if(l1.val <= l2.val){
+                head.next = l1;
+                l1 = l1.next;
+            }
+            else{
+                head.next = l2;
+                l2 = l2.next;
+            }
+            head = head.next;
+        }
+        head.next = l2 == null ? l1 : l2;
+        return res.next;
+    }
+}
+```
+
+---
+
+### 23. Merge k Sorted Lists
+> 
+>> 标签：链表，归并，分治
+
+---
+
+- 在`21题合并两个list`的基础上，将`k`个链表两两合并，再对剩下`k/2`个链表两两合并……直到合并为一个链表。
+- 本质上是归并排序的merge过程，时间复杂度`O(n k logk)`。
+
+```python []
+class Solution:
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        while len(lists) > 1:
+            tmp = []
+            for i in range(0, len(lists), 2):
+                r = None if i == len(lists) - 1 else lists[i+1]
+                tmp.append(self.merge(lists[i], r))
+            lists = tmp
+        return lists[0] if lists else None
+
+    def merge(self, h1, h2):
+        res = head = ListNode(0)
+        while h1 and h2:
+            if h1.val <= h2.val:
+                head.next = h1
+                h1 = h1.next
+            else:
+                head.next = h2
+                h2 = h2.next
+            head = head.next
+        head.next = h1 if not h2 else h2
+        return res.next
+```
+```java []
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        List<ListNode> listss = Arrays.asList(lists);
+        while (listss.size() > 1) {
+            List<ListNode> tmp = new ArrayList<>();
+            for (int i = 0; i < listss.size(); i += 2) {
+                ListNode r = i == listss.size() - 1 ? null : listss.get(i + 1);
+                tmp.add(merge(listss.get(i), r));
+            }
+            listss = tmp;
+        }
+        return listss.size() == 0 ? null : listss.get(0);
+    }
+
+    private ListNode merge(ListNode h1, ListNode h2) {
+        ListNode head = new ListNode(0);
+        ListNode res = head;
+        while (h1 != null && h2 != null) {
+            if (h1.val <= h2.val) {
+                head.next = h1;
+                h1 = h1.next;
+            } else {
+                head.next = h2;
+                h2 = h2.next;
+            }
+            head = head.next;
+        }
+        head.next = h2 == null ? h1 : h2;
+        return res.next;
+    }
+}
+```
+
+---
+
+### 24. Swap Nodes in Pairs
+> 
+>> 标签：链表，递归
+
+---
+
+- 遍历链表，一一修改指针，有`迭代`和`递归`两种做法。
+
+```Python []
+class Solution:
+    def swapPairs(self, head: ListNode) -> ListNode:
+        pre = ListNode(0)
+        res = pre
+        while head and head.next:
+            nex = head.next.next
+            pre.next = head.next
+            pre = head
+            head.next.next = head
+            head = nex
+        pre.next = head
+        return res.next
+```
+```Python []
+class Solution:
+    def swapPairs(self, head: ListNode) -> ListNode:
+        if not head or not head.next: return head
+        nex = head.next
+        head.next = self.swapPairs(nex.next)
+        nex.next = head
+        return nex
+```
+```Java []
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode pre = new ListNode(0);
+        ListNode res = pre;
+        while(head != null && head.next != null){
+            ListNode nex = head.next.next;
+            pre.next = head.next;
+            pre = head;
+            head.next.next = head;
+            head = nex;
+        }
+        pre.next = head;
+        return res.next;
+    }
+}
+```
+
+---
+
+### 28. Implement strStr()
+> 
+>> 标签：字符串
+
+---
+
+- 暴力法，复杂度O(MN)
+
+```python []
+class Solution(object):
+    def strStr(self, haystack, needle):
+        """
+        :type haystack: str
+        :type needle: str
+        :rtype: int
+        """
+        if not needle: return 0
+        l_h, l_n = len(haystack), len(needle)
+        for i in range(l_h + 1):
+            for j in range(l_n + 1):
+                if j == l_n: return i
+                if i + j == l_h: return -1
+                if haystack[i+j] != needle[j]: break
+
+    def strStr1(self, haystack, needle):
+        return haystack.find(needle)
+```
+```java []
+class Solution {
+    public int strStr(String haystack, String needle) {
+        if (needle == "") return 0;
+        for (int i = 0;; i++) {
+            for (int j = 0;; j++) {
+                if (j == needle.length()) return i;
+                if (i + j == haystack.length()) return -1;
+                if (haystack.charAt(i + j) != needle.charAt(j)) break;
+            }
+        }
+    }
+}
+```
+
+---
+
+### 35. Search Insert Position
+> 
+>> 标签：数组，二分法
+
+---
+
+- `寻找插入点`使用二分法，但与`寻找某数字`不同的是，需要考虑一些边界条件：
+  - 当插入数字和`nums`中某数字相等时，插入到左边还是右边？`本题要求插到左边`；
+  - 插入数字在`nums`第一个数字左边，或在最后一个数字右边；
+- 推荐记住其中的几个关键点写法。
+
+
+```python []
+class Solution:
+    def searchInsert(self, nums: [int], target: int) -> int:
+        left, right = 0, len(nums) - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] < target: left = mid + 1 # insert left side
+            else: right = mid - 1
+        return left
+```
+```java []
+class Solution {
+    public int searchInsert(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return left;
+    }
+}
+```
+
+---
+
+### 53. Maximum Subarray
+> 
+>> 标签：动态规划，数组
+
+---
+
+- 动态规划典型题：遍历数组，记录`max(nums[i-1] + nums[i], nums[i])`，即判断后面`subarray`是否舍去前面的加和；
+- 最后return加和中最大值。
+
+```python []
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        for i in range(1,len(nums)):
+            nums[i] = max(nums[i-1] + nums[i], nums[i])
+        return max(nums)
+```
+```java []
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int res = Integer.MIN_VALUE;
+        for(int i = 1; i < nums.length; i++){
+            nums[i] = Math.max(nums[i], nums[i] + nums[i - 1]);
+            res = Math.max(res, nums[i]);
+        }
+        return res;
+    }
+}
+```
+
+---
+
+### 54. Spiral Matrix
+> 
+>> 标签：数组
+
+---
+
+- 此方法不使用额外空间`O(1)`，时间复杂度`O(MN)`：
+  - `i`,`j`记录目前走到的位置；
+  - `h`, `l`记录剩余矩阵的高度、宽度；
+  - 沿着右下左上的顺序走，每走完一条直线将对应`高度/宽度-1`；
+  - 若剩余矩阵`高度or宽度==0`，代表已经走完`break`。
+
+
+```python []
+class Solution:
+    def spiralOrder(self, matrix: [[int]]) -> [int]:
+        if not matrix: return []
+        res = []
+        h, l = len(matrix), len(matrix[0])
+        i, j = 0, -1
+        while True:
+            for _ in range(l):
+                j += 1
+                res.append(matrix[i][j])
+            h -= 1
+            if not h: break
+            for _ in range(h):
+                i += 1
+                res.append(matrix[i][j])
+            l -= 1
+            if not l: break
+            for _ in range(l):
+                j -= 1
+                res.append(matrix[i][j])
+            h -= 1
+            if not h: break
+            for _ in range(h):
+                i -= 1
+                res.append(matrix[i][j])
+            l -= 1
+            if not l: break
+        return res
+```
+```java []
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> res = new ArrayList<>();
+        if (matrix.length == 0) return res;
+        int h = matrix.length, l = matrix[0].length;
+        int i = 0, j = -1;
+        while (true) {
+            for (int k = 0; k < l; k++)
+                res.add(matrix[i][++j]);
+            if (--h == 0) break;
+            for (int k = 0; k < h; k++)
+                res.add(matrix[++i][j]);
+            if (--l == 0) break;
+            for (int k = 0; k < l; k++)
+                res.add(matrix[i][--j]);
+            if (--h == 0) break;
+            for (int k = 0; k < h; k++)
+                res.add(matrix[--i][j]);
+            if (--l == 0) break;
+        }
+        return res;
+    }
+}
+```
+
+
+---
+
+### 62. Unique Paths
+> 
+>> 标签：动态规划，数组
+
+---
+
+- 设 `m×n` 方格有 `f(m,n)` 个不同解，则先让机器人向右走一步 or 向左走一步，可以推出 `f(m,n) = f(m-1,n) + f(m,n-1)`。
+- 创建 `m+1×n+1` 的矩阵，根据以上规则计算对角线方格的值：
+  - 要加一行一列，是为了解决`f(0,0) = f(-1,0) + f(0,-1)`出现的边界问题；
+  - 将 'f(0,1)'置`1`是为了给迭代启动值（ `m×n` 地图第一行和第一列值都应为1）。
+- 时间复杂度`O(MN)`，空间复杂度`O(MN)`。
+
+```Python []
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        matrix = [[0 for _ in range(n+1)] for _ in range(m+1)]
+        matrix[0][1] = 1
+        for i in range(1, len(matrix)):
+            for j in range(1, len(matrix[0])):
+                matrix[i][j] = matrix[i-1][j] + matrix[i][j-1]
+        return matrix[-1][-1]
+```
+```Java []
+class Solution {
+    public int uniquePaths(int m, int n) {
+        int[][] matrix = new int[m + 1][n + 1];
+        matrix[0][1] = 1;
+        for (int i = 1; i < matrix.length; i++) {
+            for (int j = 1; j < matrix[0].length; j++) {
+                matrix[i][j] = matrix[i - 1][j] + matrix[i][j - 1];
+            }
+        }
+        return matrix[m][n];
+    }
+}
+```
+
+---
+
+### 63. Unique Paths II
+> 
+>> 标签：动态规划，数组
+
+---
+
+- 和`62题`动态规划思路类似，不同的是，需要对障碍物做处理：`f(m,n) = f(m-1,n)+f(m,n-1)` if `map(m)(n) != 1` else `f(m,n) = 0`；
+- 此处理的含义是`f(m,n)`对`f(m+1,n)`和`f(m,n+1)`的贡献归零，这样就可以把所有经过障碍物的路线排除掉。
+
+
+```python []
+class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:
+        matrix = [[0 for _ in range(len(obstacleGrid[0])+1)]
+                  for _ in range(len(obstacleGrid)+1)]
+        matrix[0][1] = 1
+        for i in range(1, len(matrix)):
+            for j in range(1, len(matrix[0])):
+                matrix[i][j] = matrix[i-1][j] + matrix[i][j - 1] \
+                    if obstacleGrid[i-1][j-1] != 1 else 0
+        return matrix[-1][-1]
+```
+```java []
+class Solution {
+    public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        if (obstacleGrid.length == 0) return 0;
+        int[][] matrix = new int[obstacleGrid.length + 1][obstacleGrid[0].length + 1];
+        matrix[0][1] = 1;
+        for (int i = 1; i < matrix.length; i++) {
+            for (int j = 1; j < matrix[0].length; j++) {
+                matrix[i][j] = obstacleGrid[i - 1][j - 1] != 1 ? matrix[i - 1][j] + matrix[i][j - 1] : 0;
+            }
+        }
+        return matrix[obstacleGrid.length + 1][obstacleGrid[0].length + 1];
+    }
+}
+```
+
+---
+
+### 65. Valid Number
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 66. Plus One
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 70. Climbing Stairs
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 98. Validate Binary Search Tree
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 104. Maximum Depth of Binary Tree
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 108. Convert Sorted Array to Binary Search Tree
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 109. Convert Sorted List to Binary Search Tree
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 110. Balanced Binary Tree
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 111. Minimum Depth of Binary Tree
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 124. Binary Tree Maximum Path Sum
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 125. Valid Palindrome
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 133. Clone Graph
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 136. Single Number
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 137. Single Number II
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 138. Copy List with Random Pointer
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 150. Evaluate Reverse Polish Notation
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 151. Reverse Words in a String
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 152. Maximum Product Subarray
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 153. Find Minimum in Rotated Sorted Array
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 154. Find Minimum in Rotated Sorted Array II
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 155. Min Stack
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 156. Binary Tree Upside Down
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 157. Read N Characters Given Read4
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 159. Longest Substring with At Most Two Distinct Characters
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 161. One Edit Distance
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 163. Missing Ranges
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 170. Two Sum III - Data structure design
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 186. Reverse Words in a String II
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 557. Reverse Words in a String III
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+### 
+> 
+>> 标签：
+
+---
+
+
+
+---
+
+
 ## Sword Offer
 All 66 problems of 剑指offer are solved using [Python](./swordoffer_python), and the following is the details of [剑指offer全题目解析](https://blog.csdn.net/weixin_42736373/article/details/88934930). To `Ctri + F` the topic of the problems is recommended.
 
@@ -2035,7 +3234,6 @@ class Solution:
 - 可以理解为机器人按照以下优先级：向右、向左、向下、向上前进，其实此题下只需要向右向左向下即可，由于上面的点都已经走过，self.moving(i, j-1)始终会return 0
 ```python
 # -*- coding:utf-8 -*-
-# -*- coding:utf-8 -*-
 class Solution:
     def movingCount(self, threshold, rows, cols):
         # write code here
@@ -2061,3 +3259,47 @@ class Solution:
 
 
 ## [Source:牛客网剑指offer](https://www.nowcoder.com/ta/coding-interviews)
+
+
+------
+
+
+数组
+排序
+
+位运算
+
+字符串
+双指针
+
+二分查找
+分治算法
+
+队列
+栈
+堆
+哈希表
+链表
+贪心算法
+
+树
+深度优先搜索 DFS
+广度优先搜索 BFS
+二叉搜索树 BST
+平衡二叉树 BBT
+递归
+记忆化
+
+动态规划
+回溯算法
+
+图
+拓扑排序
+
+============
+
+极小化极大
+蓄水池抽样
+几何
+
+并查集
