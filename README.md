@@ -904,11 +904,42 @@ class Solution {
 
 ### 65. Valid Number
 > 
->> 标签：
+>> 标签：自动机，哈希表Hash
 
 ---
 
+- 画出`状态转移表`，结构为`states[n]`存储`n`个状态；
+- `states[i]`为一个HashTable，表示从此状态允许跳转到的状态。
+- 主循环中遍历字符串，通过状态转移表判断结构是否成立：
+  - 若中途遇到无法跳转的状态，直接返回`False`；
+  - 若成功遍历完字符串，要判断结束状态是否在允许的结束状态内，本题为`[2, 3, 7, 8]`。
 
+```python []
+class Solution:
+    def isNumber(self, s: str) -> bool:
+        states = [
+            { 'b': 0, 's': 1, 'd': 2, '.': 4 }, # 0. start
+            { 'd': 2, '.': 4 } ,                # 1. 'sign' before 'e'
+            { 'd': 2, '.': 3, 'e': 5, 'b': 8 }, # 2. 'digit' before 'dot'
+            { 'd': 3, 'e': 5, 'b': 8 },         # 3. 'dot' with 'digit'
+            { 'd': 3 },                         # 4. no 'digit' before 'dot'
+            { 's': 6, 'd': 7 },                 # 5. 'e'
+            { 'd': 7 },                         # 6. 'sign' after 'e'
+            { 'd': 7, 'b': 8 },                 # 7. 'digit' after 'e'
+            { 'b': 8 }                          # 8. end with
+        ]
+        p = 0
+        for c in s:
+            if '0' <= c <= '9': typ = 'd'
+            elif c == ' ': typ = 'b'
+            elif c == '.': typ = '.'
+            elif c == 'e': typ = 'e'
+            elif c in "+-": typ = 's'
+            else: typ = '?'
+            if typ not in states[p]: return False
+            p = states[p][typ]
+        return p in [2, 3, 7, 8]
+```
 
 ---
 
@@ -918,277 +949,1310 @@ class Solution {
 
 ---
 
+- 遍历`digits`，判断每位是否为`9`，若不是则`+1`并返回，否则将此位置`0`；
+- 对于`digits`里全为`9`的情况，需要扩展list，并将首位置为`1`。
 
+```python []
+class Solution:
+    def plusOne(self, digits: [int]) -> [int]:
+        for i in range(len(digits)-1, -1, -1):
+            if digits[i] != 9:
+                digits[i] += 1
+                return digits
+            digits[i] = 0
+        digits[0] = 1
+        digits.append(0)
+        return digits
+```
+```java []
+class Solution {
+    public int[] plusOne(int[] digits) {
+        for (int i = digits.length - 1; i >= 0; i--) {
+            if(digits[i] != 9){
+                digits[i]++;
+                return digits;
+            }
+            digits[i] = 0;
+        }
+        digits = new int[digits.length + 1];
+        digits[0] = 1;
+        return digits;
+    }
+}
+```
 
 ---
 
 ### 70. Climbing Stairs
 > 
->> 标签：
+>> 标签：动态规划
 
 ---
 
+- 设爬 `n `个台阶有 `f(n)` 种可能：
+  - 假设先爬`1`阶，剩下` n-1` 阶有` f(n-1)` 种可能；
+  - 假设先爬`2`阶，剩下 `n-2 `阶有 `f(n-2)` 种可能，
+  - 因此爬`n`阶可以转化为两种爬`n-1`阶问题之和：`f(n) = f(n-1) + f(n-2)`；
+- 不难看出，这就是`斐波那契数列`公式，此题可转化为求斐波那契数列第`n`项。
 
+
+```Python []
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        a, b = 1, 1
+        for _ in range(n-1):
+            a, b = a + b, a
+        return a
+```
+```Java []
+class Solution {
+    public int climbStairs(int n) {
+        int a = 1, b = 1;
+        for(int i = 0; i < n - 1; i++){
+            int tmp = a;
+            a = a + b;
+            b = tmp;
+        }
+        return a;
+    }
+}
+```
 
 ---
 
 ### 98. Validate Binary Search Tree
 > 
->> 标签：
+>> 标签：二叉搜索树BST,中序遍历
 
 ---
 
+- 二叉搜索树的中序遍历是一个已排序`List`，我们可以根据此性质对树进行中序遍历并判断：
+- 设置一个全局变量`tmp`，记录中序遍历上一个值，始终比较当前值和上一个值大小，若`当前值<=上一个值`则`返回false`；
+- 当找到不符搜索树性质情况时，一路`返回false`，以下python和java使用两种写法，但原理上是等价的。
 
+```python []
+class Solution:
+    def __init__(self):
+        self.tmp = -float('inf')
+    def isValidBST(self, root: TreeNode) -> bool:
+        if not root: return True
+        if not self.isValidBST(root.left): return False
+        if self.tmp >= root.val: return False
+        self.tmp = root.val
+        if not self.isValidBST(root.right): return False
+        return True
+```
+```java []
+class Solution {
+    long tmp = Long.MIN_VALUE;
+    public boolean isValidBST(TreeNode root) {
+        if(root == null) return true;
+        if (isValidBST(root.left)) {
+            if (tmp < root.val) {
+                tmp = root.val;
+                return isValidBST(root.right);
+            }
+        }
+        return false;
+   }
+}
+```
 
 ---
 
 ### 104. Maximum Depth of Binary Tree
 > 
->> 标签：
+>> 标签：递归、深度优先搜索DFS
 
 ---
 
+- `递归公式：`树深度 = max(左子树深度，右子树深度) + 1
+- `终止条件：`越过叶子节点，return 0
 
+```python []
+class Solution:
+    def maxDepth(self, root: TreeNode) -> int:
+        if not root: return 0
+        return max(self.maxDepth(root.left), self.maxDepth(root.right)) + 1
+```
+```java []
+class Solution {
+    public int maxDepth(TreeNode root) {
+        if (root == null) return 0;
+        return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
+    }
+}
+```
 
 ---
 
 ### 108. Convert Sorted Array to Binary Search Tree
 > 
->> 标签：
+>> 标签：平衡二叉树BBT，二叉搜索树BST
 
 ---
 
+- 将一个排序array转化为平衡二叉搜索树：
+  - `平衡二叉树`：对于每个根节点，`左右子树高度差 <= 1`；
+  - `二叉搜索树`：对于每个节点，其`左子树值<此节点值`，`右子树>此节点值`。
+- 要满足以上两个特点，我们自然想到以`array中点值`作为根节点值，并递归重建，这样就可以同时保证以上两个条件。
 
+
+```python []
+class Solution:
+    def sortedArrayToBST(self, nums: List[int]) -> TreeNode:
+        if not nums: return
+        mid = len(nums) // 2
+        root = TreeNode(nums[mid])
+        root.left = self.sortedArrayToBST(nums[:mid])
+        root.right = self.sortedArrayToBST(nums[mid+1:])
+        return root
+```
+```java []
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return toBST(nums, 0, nums.length - 1);
+    }
+
+    private TreeNode toBST(int[] nums, int left, int right) {
+        if(left > right) return null;
+        int mid = (left + right) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = toBST(nums, left, mid - 1);
+        root.right = toBST(nums, mid + 1, right);
+        return root;
+    }
+}
+```
 
 ---
 
 ### 109. Convert Sorted List to Binary Search Tree
 > 
->> 标签：
+>> 标签：二叉搜索树BST，深度优先搜索DFS，回溯法
 
 ---
 
+- 做过数组还原平衡二叉搜索树（推荐先做`题号108`），我们知道，在`array`中每次取中点作为根节点，左右分别构建左右子树，递归直至根节点为空。
+- 链表的特性导致我们无法像数组那样通过下标访问各个元素。若想按照`108题`的做法，就需要设置两个指针`p1` `p2`，`p1`每走一步`p2`走两步，这样`p2`结束时`p1`就在中点。但这样会导致每次递归都需要重复遍历链表，效率较低。
+- 我们考虑是否可以让建立节点的顺序匹配链表元素顺序？这样每次建立节点时，只需要获取链表下一个元素即可。
+- 使用递归模拟`中序遍历`过程，建立节点的顺序即与链表元素顺序一一对应，`bottom-up`建立树，最终返回根节点。
+- 递归前需要统计链表长度`n`，整体算法复杂度`O(N)`。
 
+
+```python []
+class Solution:
+    def __init__(self):
+        self.head = None
+    def sortedListToBST(self, head: ListNode) -> TreeNode:
+        n, self.head = 0, head
+        while head:
+            head = head.next
+            n += 1
+        return self.to_bst(0, n - 1)
+    def to_bst(self, left, right):
+        if left > right: return
+        m = (left + right) // 2
+        left_child = self.to_bst(left, m - 1)
+        father = TreeNode(self.head.val)
+        self.head = self.head.next
+        father.left = left_child
+        father.right = self.to_bst(m + 1, right)
+        return father
+```
+```java []
+class Solution {
+    private ListNode node;
+    public TreeNode sortedListToBST(ListNode head) {
+        int n = 0;
+        node = head;
+        while(head != null){
+            head = head.next;
+            n++;
+        }
+        return toBST(0, n-1);
+    }
+    private TreeNode toBST(int left, int right){
+        if(left > right) return null;
+        int m = (left + right) / 2;
+        TreeNode left_child = toBST(left, m-1);
+        TreeNode father = new TreeNode(node.val);
+        node = node.next;
+        father.left = left_child;
+        father.right = toBST(m+1, right);
+        return father;
+    }
+}
+```
 
 ---
 
 ### 110. Balanced Binary Tree
 > 
->> 标签：
+>> 标签：平衡二叉树BBT，递归
 
 ---
 
+#### Bottom-up 提前阻断法（复杂度 `O(N)`）
 
+- 在对`root`做`dfs`时，会从下至上获得每个`root`的左右子树高度，当我们发现有一例`左右子树高度差 ＞1`的情况时`return -1`，代表此树不是平衡树，后面的高度计算都没有意义了，之后一路`return -1`，不再做后面的`DFS`。
+
+```Python []
+class Solution:
+    def isBalanced(self, root: TreeNode) -> bool:
+        return self.depth(root) != -1
+
+    def depth(self, root):
+        if not root: return 0
+        left = self.depth(root.left)
+        if left == -1: return -1
+        right = self.depth(root.right)
+        if right == -1: return -1
+        return max(left,right) + 1 if abs(left - right) < 2 else -1
+```
+```Java []
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        return depth(root) != -1;
+    }
+
+    private int depth(TreeNode root) {
+        if (root == null) return 0;
+        int left = depth(root.left);
+        if(left == -1) return -1;
+        int right = depth(root.right);
+        if(right == -1) return -1;
+        return Math.abs(left - right) < 2 ? Math.max(left, right) + 1 : -1;
+    }
+}
+```
+
+#### Brute force 暴力法（复杂度`O(N^2`）
+
+- 构造一个获取当前节点最大深度的方法 `depth()`，通过比较左右子树最大深度差来判断是否是二叉平衡树；
+- 以每个节点为根节点，递归判断，所有节点满足平衡二叉树性质则返回 `True`；
+- 本方法在计算节点深度时产生大量重复计算，时间复杂度 `O(N^2)`。
+
+
+```Python []
+class Solution:
+    def isBalanced(self, root: TreeNode) -> bool:
+        if not root: return True
+        return abs(self.depth(root.left) - self.depth(root.right)) <= 1 and \
+            self.isBalanced(root.left) and self.isBalanced(root.right)
+
+    def depth(self, root):
+        if not root: return 0
+        return max(self.depth(root.left), self.depth(root.right)) + 1
+```
+```Java []
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        if (root == null) return true;
+        return Math.abs(depth(root.left) - depth(root.right)) <= 1 && isBalanced(root.left) && isBalanced(root.right);
+    }
+
+    private int depth(TreeNode root) {
+        if (root == null) return 0;
+        return Math.max(depth(root.left), depth(root.right)) + 1;
+    }
+}
+```
 
 ---
 
 ### 111. Minimum Depth of Binary Tree
 > 
->> 标签：
+>> 标签：二叉树，递归
 
 ---
 
+- 这道题和`maximum depth`题正好相反，是求`根节点`到`叶子节点`的最小深度，为确保统计的是`根节点`到`叶子节点`的深度，需要注意：
+  - 当前节点`左右子树`有一个为空时，返回的应是`非空子树`的最小深度，而不是`空子树`深度0；若返回0相当于把当前节点认为成`叶子节点`，与此节点有`非空子树`矛盾。
+  - 当`左右子树`都不为空时，和`maximum depth`题一样，返回左右子树深度的最小值。
+  - 当`左右子树`都为空时，只有1个根节点深度为1（根节点与叶子节点重合）。
 
+
+```python []
+class Solution:
+    def minDepth(self, root: TreeNode) -> int:
+        if not root: return 0
+        if not root.left: return self.minDepth(root.right) + 1
+        if not root.right: return self.minDepth(root.left) + 1
+        return min(self.minDepth(root.left), self.minDepth(root.right)) + 1
+```
+```java []
+class Solution {
+    public int minDepth(TreeNode root) {
+        if(root == null) return 0;
+        if(root.left == null) return minDepth(root.right) + 1;
+        if(root.right == null) return minDepth(root.left) + 1;
+        return Math.min(minDepth(root.left),minDepth(root.right)) + 1;
+    }
+}
+```
 
 ---
 
 ### 124. Binary Tree Maximum Path Sum
 > 
->> 标签：
+>> 标签：二叉树，递归
 
 ---
 
+- 根据题意，最大路径和可能出现在：
+  - 左子树中
+  - 右子树中
+  - 包含根节点与左右子树
+- 我们的思路是递归从bottom向top`return`的过程中，记录`左子树和右子树中路径更大的那个`，并向父节点提供`当前节点和子树组成的最大值`。
+- 递归设计：
+  - 返回值：`(root.val) + max(left, right)` 即此节点与左右子树最大值之和，较差的解直接被舍弃，不会再被用到。
+    - 需要注意的是，若计算结果`tmp <= 0`，意味着对根节点有`负贡献`，不会在任何情况选这条路（父节点中止），因此返回`0`。
+  - 递归终止条件：越过叶子节点，返回`0`；
+  - 记录最大值：当前节点`最大值 = root.val + left + right`。
+- 最终返回所有路径中的全局最大值即可。
+  
 
+```python []
+class Solution:
+    def maxPathSum(self, root: TreeNode) -> int:
+        self.max = float('-inf')
+        self.max_path(root)
+        return self.max
+        
+    def max_path(self, root):
+        if not root: return 0
+        left = self.max_path(root.left)
+        right = self.max_path(root.right)
+        self.max = max(left + right + root.val, self.max)
+        tmp = max(left, right) + root.val
+        return tmp if tmp > 0 else 0
+```
+```java []
+class Solution {
+    private int max = Integer.MIN_VALUE;
+    public int maxPathSum(TreeNode root) {
+        maxPath(root);
+        return max;
+    }
+    private int maxPath(TreeNode root){
+        if(root == null) return 0;
+        int left = maxPath(root.left);
+        int right = maxPath(root.right);
+        max = Math.max(root.val + left + right, max);
+        int tmp = Math.max(left, right) + root.val;
+        return tmp > 0 ? tmp : 0;
+    }
+}
+```
 
 ---
 
 ### 125. Valid Palindrome
 > 
->> 标签：
+>> 标签：字符串，双指针
 
 ---
 
+- 设置左、右`双指针`，向中间判断；
+- 跳过`非数字字母`的字符；
+- 将字母全部转化为`小写体`，之后判断。
+- `java`用了库函数，`python`纯自己实现（运行时间不太理想）。
 
+```python []
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        left, right = 0, len(s) - 1
+        case = abs(ord('a') - ord('A'))
+        while left < right:
+            while left < right and self.not_letters_digits(s[left]): left += 1
+            while left < right and self.not_letters_digits(s[right]): right -= 1 
+            s_l = ord(s[left]) - case if s[left] >= 'a' else ord(s[left])
+            s_r = ord(s[right]) - case if s[right] >= 'a' else ord(s[right])
+            if s_l != s_r: return False
+            left += 1
+            right -= 1
+        return True
+    
+    def not_letters_digits(self, c):
+        return not 'A' <= c <= 'Z' and not 'a' <= c <= 'z' and not '0' <= c <= '9'
+```
+```java []
+class Solution {
+    public boolean isPalindrome(String s) {
+        int i = 0, j = s.length() - 1;
+        while(i < j){
+            while(i < j && !Character.isLetterOrDigit(s.charAt(i))) i++;
+            while(i < j && !Character.isLetterOrDigit(s.charAt(j))) j--;
+            if(Character.toLowerCase(s.charAt(i)) != Character.toLowerCase(s.charAt(j))) return false;
+            i++; j--;
+        }
+        return true;
+    }
+}
+```
 
 ---
 
 ### 133. Clone Graph
 > 
->> 标签：
+>> 标签：图，深度优先遍历DFS
 
 ---
 
+- 从给定节点开始，使用DFS遍历整个图，建立`node`节点的复制`copy`节点；
+- 递归遍历`node.neighbors`，建立`copy`节点的各个`neighbor`；
+- 每次建立`copy`时，将节点添加进HashMap：
+  - `key = node`，`value = copy`
+- `终止条件：`每次dfs首先判断HashMap中是否已经存在此`node`节点，若存在则直接return此HashMap中的`copy`节点。
 
+
+```python []
+class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        self.dic = {} # store all the copy nodes: dic[node] = copy
+        return self.dfs(node)
+
+    def dfs(self, node):
+        if node not in self.dic:
+            self.dic[node] = copy = Node(node.val, []) # get copy of the node 'node' and add it into the dictionary.
+            for nei in node.neighbors: # recursive: get the neighbors of the node 'copy'.
+                copy.neighbors.append(self.dfs(nei)) 
+        return self.dic[node] # return the node 'copy'.
+```
+```java []
+class Solution {
+    private Map<Node, Node> map;
+    public Node cloneGraph(Node node) {
+        map = new HashMap<>();
+        return dfs(node);        
+    }
+    private Node dfs(Node node) {
+        if(!map.containsKey(node)){
+            Node copy = new Node(node.val, new ArrayList<Node>());
+            map.put(node, copy);
+            for(Node nei : node.neighbors){
+                copy.neighbors.add(dfs(nei));
+            }
+        }
+        return map.get(node);
+    }
+}
+```
 
 ---
 
 ### 136. Single Number
 > 
->> 标签：
+>> 标签：数组，位运算
 
 ---
 
+- 通过题目已知信息，需要`O(N)`时间复杂度和`O(1)`空间复杂度，即遍历一遍`arr`就需要得出答案，考虑：
+  - 最多遍历一次`arr`就要得到答案；
+  - 两个相同的数字经过此运算为`0`；
+  - 满足`交换律`，即打乱`arr`元素排列顺序不改变答案。
+- 因此，想到`异或xor`操作，异或有以下两个性质：
+  - `a ^ a = 0`
+  - `0 ^ a = a`
+- 从而遍历`arr`后，留下来的数字即为只出现一次的数字。
 
+```python []
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        res = 0
+        for num in nums:
+            res ^= num
+        return res
+```
+```java []
+class Solution {
+    public int singleNumber(int[] nums) {
+        int res = 0;
+        for(int num : nums){
+            res ^= num;
+        }
+        return res;
+    }
+}
+```
 
 ---
 
 ### 137. Single Number II
 > 
->> 标签：
+>> 标签：数组，位运算
 
 ---
 
+- 这道题是`136题`拓展，`136题`中我们用到了`异或运算`，其实异或运算的另一个含义是“二进制下不考虑进位的加法”：0+0 = 0， 1+1=0……
+- 我们联想到，是否可以通过某种运算`$`，使`a $ a $ a` = 0，`0 $ a = a`，即创建“三进制下不考虑进位的加法”，这样将整个`arr`遍历加和，留下来的就是那个只出现一次的数字（其余各位都出现了`3x`次，一定为`0`）。
+- 看到下面一堆与、或、非、异或运算应该很懵吧……下面一条条分析：
+  - `ones`记录至目前元素，各位元素出现`1`次的位置；
+  - `twos`记录至目前元素，各位元素出现`2`次的位置；
+  - `threes`记录至目前元素，各位元素出现`3`次的位置
+每轮完成时，当`threes`里某位为`1`时（代表此位出现了3次），需要将`ones` `twos`的对应位清零。
 
+```python []
+class Solution:
+    def singleNumber(self, nums: [int]) -> int:
+        ones, twos, threes = 0, 0, 0
+        for num in nums:
+            twos |= ones & num # ones & num 提取两个数都为1的位，与twos作或操作保留出现2次的位
+            ones ^= num  # 当 ones 和 num 同时为 1 or 0 时，ones = 0，因为同时为1已经加到twos里了，这里不做count
+            threes = ones & twos # 当ones和twos对应位都为1时，说明此位出现了3次
+            ones &= ~threes # three为1的位，将one和two对应位归零
+            twos &= ~threes
+        return ones
+```
+```java []
+class Solution {
+    public int singleNumber(int[] nums) {
+        int ones = 0, twos = 0, threes = 0;
+        for(int num : nums){
+            twos |= ones & num;
+            ones ^= num;
+            threes = ones & twos;
+            ones &= ~threes;
+            twos &= ~threes;
+        }
+        return ones;
+    }
+}
+```
 
 ---
 
 ### 138. Copy List with Random Pointer
 > 
->> 标签：
+>> 标签：链表，多指针
 
 ---
 
+1. 复制与合并：假设原链表为`ABCDE……`，从前到后复制得到`A'B'C'D'E'……`，合并得到`AA'BB'CC'DD'EE'……`。此步骤是为了从空间上构建`random`对应关系；
+2. 设置复制链表的random项：`A.next.random = A.random.next`；
+3. 将两列表分离，返回deepcopy链表表头。
 
+
+```python []
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        if not head: return
+        pre, cur = Node(0, None, None), head
+        while cur: # copy and merge.
+            nex = cur.next
+            pre.next = cur
+            cur.next = Node(cur.val, None, None)
+            pre = cur.next
+            cur = nex
+        cur = head
+        while cur: # set the 'random' nodes.
+            cur.next.random = cur.random.next if cur.random else None
+            cur = cur.next.next
+        cur, res = head, head.next
+        while cur.next: # divide the two linked lists.
+            nex = cur.next
+            cur.next = nex.next
+            cur = nex
+        return res
+```
+```java []
+class Solution {
+    public Node copyRandomList(Node head) {
+        if(head == null) return null;
+        Node pre = new Node(0, null, null), cur = head, nex = cur.next;
+        while(cur != null){
+            nex = cur.next;
+            pre.next = cur;
+            cur.next = new Node(cur.val, null, null);
+            pre = cur.next;
+            cur = nex;
+        }
+        cur = head;
+        while(cur != null){
+            cur.next.random = cur.random != null ? cur.random.next : null;
+            cur = cur.next.next;
+        }
+        cur = head;
+        Node res = head.next;
+        while(cur.next != null){
+            nex = cur.next;
+            cur.next = nex.next;
+            cur = nex;
+        }
+        return res;
+    }
+}
+```
 
 ---
 
 ### 150. Evaluate Reverse Polish Notation
 > 
->> 标签：
+>> 标签：字符串，栈
 
 ---
 
+- 解析`逆波兰式（后缀表达式）`；同理还有前缀表达式、中缀表达式。
+- 利用栈先进后出的特性遍历逆波兰式，当遇到计算符号时pop前两个字符进行计算，将计算结果push进stack；遇到数字时直接push进stack。
 
+
+```python []
+class Solution:
+    def evalRPN(self, tokens: [str]) -> int:
+        symbol = ['+', '-', '*', '/']
+        stack = []
+        for t in tokens:
+            if t in symbol:
+                stack.append(self.eval(stack.pop(-2), stack.pop(), t))
+            else:
+                stack.append(int(t))
+        return stack[-1]
+
+
+    def eval(self, x, y, symbol):
+        if symbol == '+': return x + y
+        if symbol == '-': return x - y
+        if symbol == '*': return x * y
+        if symbol == '/': return int(x / y)
+```
+```java []
+class Solution {
+    private static final Set<String> SYMBOLS = new HashSet<>(Arrays.asList("+","-","*","/"));
+    
+    public int evalRPN(String[] tokens) {
+        Stack<Integer> stack = new Stack<>();
+        for(String t : tokens){
+            if(SYMBOLS.contains(t)){
+                int y = stack.pop();
+                int x = stack.pop();
+                stack.push(eval(x, y, t));
+            } else {
+                stack.push(Integer.parseInt(t));
+            }
+        }
+        return stack.peek();
+    }
+
+    private int eval(int x, int y, String symbol){
+        switch(symbol){
+            case "+": return x + y;
+            case "-": return x - y;
+            case "*": return x * y;
+            default:  return x / y;
+        }
+    }
+}
+```
 
 ---
 
 ### 151. Reverse Words in a String
 > 
->> 标签：
+>> 标签：字符串，双指针
 
 ---
 
+- 先处理字符串，将首尾空格都删除；
+1. 倒序遍历字符串，当第一次遇到空格时，添加`s[i + 1: j]`（即添加一个完整单词）；
+2. 然后，将直至下一个单词中间的空格跳过，并记录下一个单词尾部`j`；
+3. 继续遍历，直至下一次遇到第一个空格，回到`1.`步骤；
+- 由于`s`首部没有空格，因此最后需要将第一个单词加入，再return。
+- python可一行实现。
 
+```python []
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        s = s.strip()
+        res = ""
+        i, j = len(s) - 1, len(s)
+        while i > 0:
+            if s[i] == ' ':
+                res += s[i + 1: j] + ' '
+                while s[i] == ' ': i -= 1
+                j = i + 1
+            i -= 1
+        return res + s[:j]
+```
+```python []
+    def reverseWords1(self, s: str) -> str:
+        return " ".join(s.split()[::-1])
+```
+```java []
+class Solution {
+    public String reverseWords(String s) {
+        StringBuffer res = new StringBuffer();
+        s = s.trim(); // delete leading or trailing spaces.
+        int i = s.length() - 1, j = s.length();
+        while (i > 0) {
+            if (s.charAt(i) == ' ') {
+                res.append(s.substring(i + 1, j));
+                res.append(' ');
+                while (s.charAt(i) == ' ') i--; // ignore extra spaces between words.
+                j = i + 1;
+            }
+            i--;
+        }
+        return res.append(s.substring(0, j)).toString();
+    }
+}
+```
 
 ---
 
 ### 152. Maximum Product Subarray
 > 
->> 标签：
+>> 标签：动态规划，数组
 
 ---
 
+- 此题与53题类似，不同处是53题的运算是加法，本题是乘法。
+  - 对于加法，在遍历数组中始终取`max(ma + nums[i], nums[i])`即可，因为无论`nums[i]`的正负如何，
+  - 对与乘法，在遍历数组中，若`nums[i]`是负数，那么当前最大值`ma * nums[i]`会变成当前最小值（负数），因此不能简单的只记录最大值。
+- 本题的解题思路是同时记录当前最大值和最小值`ma, mi`：
+  - 当`nums[i]`是正数时，`ma, mi * nums[i]`仍然是最大值，最小值；
+  - 当`nums[i]`是负数时，`ma, mi * nums[i]`将变成最小值， 最大值；
+  - 因此，当`nums[i] < 0`时，我们交换`ma, mi`。
+- 在遍历`nums`过程中，每次更新`res`获取全局最大值。
 
+```python []
+class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        mi = ma = res = nums[0]
+        for i in range(1, len(nums)):
+            if nums[i] < 0: mi, ma = ma, mi
+            ma = max(ma * nums[i], nums[i])
+            mi = min(mi * nums[i], nums[i])
+            res = max(res, ma)
+        return res 
+```
+```java []
+class Solution {
+    public int maxProduct(int[] nums) {
+        int max = nums[0], min = nums[0], res = nums[0];
+        for(int i = 1; i < nums.length; i++){
+            if(nums[i] < 0){
+                int tmp = max;
+                max = min;
+                min = tmp;
+            }
+            max = Math.max(nums[i], max * nums[i]);
+            min = Math.min(nums[i], min * nums[i]);
+            res = Math.max(max, res);
+        }
+        return res;
+    }
+}
+```
 
 ---
 
 ### 153. Find Minimum in Rotated Sorted Array
 > 
->> 标签：
+>> 标签：数组，二分法
 
 ---
 
+- 旋转排序数组`nums`可以被拆分为2个排序数组`nums1`, `nums2`，并且`nums1`中所有元素比`nums2`大（因为`nums`中没有重复值）；
+- 因此，考虑二分法寻找值`nums[i]`，满足`nums[i] < nums[i-1]` and `nums[i] < nums[i+1]`
+- 设置`left`, `right`指针在nums数组两端，`mid`为中点：
+  - 当`nums[mid] > nums[right]`时，一定满足`mid < i <= right`，因此`left = mid + 1`；
+  - 当`nums[mid] < nums[right]`时，一定满足`left< i <= mid`，因此`right = mid`；
+  - 当`nums[mid] == nums[right]`时，说明数组长度`len(num) == 1`（因为计算mid向下取整）；当`left = right`也满足，但本题`left == right`时跳出循环。
 
+
+```python []
+class Solution:
+    def findMin(self, nums: [int]) -> int:
+        left, right = 0, len(nums) - 1
+        while left < right:
+            mid = (left + right) // 2
+            if nums[mid] > nums[right]: left = mid + 1
+            else: right = mid
+        return nums[left]
+```
+```java []
+class Solution {
+    public int findMin(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while(left < right){
+            int mid = (left + right) / 2;
+            if(nums[mid] > nums[right]) left = mid + 1;
+            else right = mid;
+        }
+        return nums[left];
+    }
+}
+```
 
 ---
 
 ### 154. Find Minimum in Rotated Sorted Array II
 > 
->> 标签：
+>> 标签：二分法，数组
 
 ---
 
+- 旋转排序数组`nums`可以被拆分为2个排序数组`nums1`, `nums2`，并且`nums1`所有元素>=`nums2`所有元素；
+- 因此，考虑二分法寻找值`nums[i]`；
+- 设置`left`, `right`指针在nums数组两端，`mid`为中点：
+  - 当`nums[mid] > nums[right]`时，一定满足`mid < i <= right`，因此`left = mid + 1`；
+  - 当`nums[mid] < nums[right]`时，一定满足`left < i <= mid`，因此`right = mid`；
+  - 当`nums[mid] == nums[right]`时，是此题对比`153`题的难点（原因是此题中数组的元素`可重复`，相等就难以判断最小值的指针区间）；先说结果：采用`right = right - 1`，下面证明：
+    - 首先，此操作`不会使数组越界`，因为`right > left > 0`；
+    - 其次，此操作`不会使最小值丢失`，证明：假设'nums[right]'是最小值，有两种情况：
+        - 若`nums[right]`是唯一最小值：那就不可能满足判断条件`nums[mid] == nums[right]`，因为`left != right`且`mid = left + right // 2  < right`（向下取整）；
+        - 若有其他元素和`nums[right]`同为最小值：还有最小值存在于`[left, right -1]`间，不会丢失最小值。
+- 以上是理论分析，可以用以下数组辅助思考：
+  - `[1, 2, 3]`
+  - `[1, 1, 0, 1]`
+  - `[1, 0, 1, 1, 1]`
+  - `[1, 1, 1, 1]`
 
+```python []
+class Solution:
+    def findMin(self, nums: List[int]) -> int:
+        left, right = 0, len(nums) - 1
+        while left < right:
+            mid = (left + right) // 2
+            if nums[mid] > nums[right]: left = mid + 1
+            elif nums[mid] < nums[right]: right = mid
+            else: right = right - 1 # key
+        return nums[left]
+```
+```java []
+class Solution {
+    public int findMin(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] > nums[right]) left = mid + 1;
+            else if (nums[mid] < nums[right]) right = mid;
+            else right = right - 1;
+        }
+        return nums[left];
+    }
+}
+```
 
 ---
 
 ### 155. Min Stack
 > 
->> 标签：
+>> 标签：栈，设计
 
 ---
 
+- 借用一个辅助栈`min_stack`，每当push新值进来时，如果小于等于`min_stack`栈顶值则一起push到`min_stack`；
+- pop时判断是否是最小值，如果是则`min_stack`一起pop，这样可以保证`min_stack栈顶始终是`stack`中的最小值。
+- 时间空间复杂度都为`O(N)`。
 
+
+```python []
+class MinStack:
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.stack = []
+        self.min_stack = []
+        
+    def push(self, x: int) -> None:
+        self.stack.append(x)
+        if not self.min_stack or x <= self.min_stack[-1]: 
+            self.min_stack.append(x)
+    def pop(self) -> None:
+        if self.stack.pop() == self.min_stack[-1]:
+            self.min_stack.pop()
+        
+    def top(self) -> int:
+        return self.stack[-1]
+        
+    def getMin(self) -> int:
+        return self.min_stack[-1]
+```
+```java []
+class MinStack {
+    private Stack<Integer> stack;
+    private Stack<Integer> min_stack;
+    /** initialize your data structure here. */
+    public MinStack() {
+        stack = new Stack<>();
+        min_stack = new Stack<>();
+    }
+    
+    public void push(int x) {
+        stack.push(x);
+        if(min_stack.isEmpty() || x <= min_stack.peek())
+            min_stack.push(x);
+    }
+    
+    public void pop() {
+        if(stack.pop().equals(min_stack.peek()))
+            min_stack.pop();
+    }
+    
+    public int top() {
+        return stack.peek();
+    }
+    
+    public int getMin() {
+        return min_stack.peek();
+    }
+}
+```
 
 ---
 
 ### 156. Binary Tree Upside Down
 > 
->> 标签：
+>> 标签：树，迭代
 
 ---
 
+- 根据题目描述，树中任何节点的右子节点若存在一定有左子节点，因此思路是向左遍历树进行转化；
+- 规律是：左子节点变父节点；父节点变右子节点；右子节点变父节点。
+- 对于某节点`root`，修改`root.left`，`root.right`之前，需要将三者都存下来：
+  - `root.left`是下一轮递归的主节点；
+  - `root`是下一轮递归`root`的`root.right`；
+  - `root.right`是下一轮递归`root`的`root.left`。
+- 返回parent。
 
 
----
 
-### 157. Read N Characters Given Read4
-> 
->> 标签：
-
----
-
-
+```python []
+class Solution:
+    def upsideDownBinaryTree(self, root: TreeNode) -> TreeNode:
+        parent = parent_right = None
+        while root:
+            root_left = root.left
+            root.left = parent_right
+            parent_right = root.right
+            root.right = parent
+            parent = root
+            root = root_left
+        return parent
+```
+```java []
+class Solution {
+    public TreeNode upsideDownBinaryTree(TreeNode root) {
+        TreeNode parent = null, parent_right = null;
+        while(root != null){
+            TreeNode root_left = root.left;
+            root.left = parent_right;
+            parent_right = root.right;
+            root.right = parent;
+            parent = root;
+            root = root_left;
+        }
+        return parent;
+    }
+}
+```
 
 ---
 
 ### 159. Longest Substring with At Most Two Distinct Characters
 > 
->> 标签：
+>> 标签：字符串，双指针
 
 ---
 
+- 设置两指针`i`, `j`指向str头部：
+  - `j`向右移动，`dic[j]`统计目前`[i:j]`间`s[j]`出现次数，`dist`统计不同字符的数量；
+  - `j`移动一格后，若`dist > 2`，移动左指针`i`，直到`[i:j]`间不同字符数量`<=2`；
+  - `j`每移动一格，需统计一次最大字串长度`res = max(res, j - i + 1)`。
 
+```python []
+class Solution:
+    def lengthOfLongestSubstringTwoDistinct(self, s: str) -> int:
+        dic = {}
+        i, dist, res = 0, 0, 0
+        for j in range(len(s)):
+            if s[j] in dic and dic[s[j]]:
+                dic[s[j]] += 1
+            else:
+                dic[s[j]] = 1
+                dist += 1
+            while dist > 2:
+                dic[s[i]] -= 1
+                if not dic[s[i]]: dist -= 1
+                i += 1
+            res = max(res, j - i + 1)
+        return res
+```
+```java []
+class Solution {
+    public int lengthOfLongestSubstringTwoDistinct(String s) {
+        int[] count = new int[256];
+        int i = 0, numDistinct = 0, maxLen = 0;
+        for (int j = 0; j < s.length(); j++) {
+            if (count[s.charAt(j)] == 0) numDistinct++;
+            count[s.charAt(j)]++;
+            while (numDistinct > 2) {
+                count[s.charAt(i)]--;
+                if (count[s.charAt(i)] == 0) numDistinct--;
+                i++;
+            }
+            maxLen = Math.max(maxLen, j - i + 1);
+        }
+        return maxLen;
+    }
+}
+```
 
 ---
 
 ### 161. One Edit Distance
 > 
->> 标签：
+>> 标签：字符串、指针
 
 ---
 
+1. `s`和`t`长度之差大于`1`，返回`False`，先通过交换`s`,`t`保证`len(s) < len(t)`；
+2. 第一段匹配方法相同，找到第一个不同的`char`，第一段后如果已经走完`s`，则直接返回，有以下两种情况：
+    1. 若`长度之差=0`，说明为两相同string，返回`False`；
+    2. 若`长度之差=1`，说明只有最末位不同，返回`True`。
+3. 第二段匹配需要根据长度之差做不同处理：
+    1. 若`长度之差=0`，则`s`,`t`的index同时+1（同时越过此不同字符），继续比较；
+    2. 若`长度之差=1`，则s的index不变，t的index+1（越过需要插入的字符），继续比较；
+5. 如果能够匹配完整个`s`，返回`True`，否则说明有两个及以上不同字符or插入点，返回`False`。
 
+```python []
+class Solution:
+    def isOneEditDistance(self, s: str, t: str) -> bool:
+        i, dif = 0, len(t) - len(s)
+        if dif < 0: s, t, dif = t, s, -dif
+        if dif > 1: return False # 1.
+        while i < len(s) and s[i] == t[i]: i += 1 # 2.
+        if i == len(s): return bool(dif)
+        if not dif: i += 1 # 3.1
+        while i < len(s) and s[i] == t[i + dif]: i += 1 # 3.
+        return i == len(s) #5.
+```
+```java []
+class Solution {
+    public boolean isOneEditDistance(String s, String t) {
+        int dif = t.length() - s.length(), i = 0;
+        if (dif < 0) return isOneEditDistance(t, s);
+        if (dif > 1) return false;
+        while (i < s.length() && s.charAt(i) == t.charAt(i)) i++;
+        if (i == s.length()) return dif > 0;
+        if (dif == 0) i++;
+        while (i < s.length() && s.charAt(i) == t.charAt(i + dif)) i++;
+        return i == s.length();
+    }
+}
+```
 
 ---
 
 ### 163. Missing Ranges
 > 
->> 标签：
+>> 标签：数组，双指针
 
 ---
 
+- 使用双指针`low`、`num`，遍历`nums`添加对应范围即可；
+- 需要先向`nums`尾部添加`upper + 1`。
 
+```python []
+class Solution:
+    def findMissingRanges(self, nums: [int], lower: int, upper: int) -> [str]:
+        res = []
+        low = lower - 1
+        nums.append(upper + 1)
+        for num in nums:
+            dif = num - low
+            if dif == 2: res.append(str(low+1))
+            elif dif > 2: res.append(str(low+1) + "->" + str(num-1))
+            low = num
+        return res
+```
+```java []
+class Solution {
+    public List<String> findMissingRanges(int[] nums, int lower, int upper) {
+        List<String> res = new ArrayList<>();
+        long pre = (long)lower - 1; // prevent 'int' overflow
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] - pre == 2) res.add(String.valueOf(pre + 1));
+            else if (nums[i] - pre > 2) res.add((pre + 1) + "->" + (nums[i] - 1));
+            pre = nums[i]; // 'int' to 'long'
+        }
+        if (upper - pre == 1) res.add(String.valueOf(pre + 1));
+        else if (upper - pre > 1) res.add((pre + 1) + "->" + upper);
+        return res;
+    }
+}
+```
 
 ---
 
 ### 170. Two Sum III - Data structure design
 > 
->> 标签：
+>> 标签：哈希表Hash
 
 ---
 
+- HashMap法：时间复杂度`O(N)`，空间复杂度`O(N)`；
+- `add`：在将数字添加进`nums`数组的同时，将数字作为`key`存入`map`，`map`的`value`存此数字在数组的位置；
+- `find`：在搜索是否有加和时，遍历整个数组`nums`，判断`value - nums[i]`是否在`map`中：
+  - 若在，还需要判断`map[value - nums[i]] == i`，这个是为了排除是否是数组中同一个元素的加和（题意是必须两个不同元素的加和）；因为如果add了两个相同的数字，那么`map[value - nums[i]]`一定大于`i`，因为在`add`操作中每次会刷新此数字的最新index。
+  - 若不在，就继续遍历，直至遍历完`nums`。
 
+
+```python []
+class TwoSum:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.nums = []
+        self.dic = {}
+    
+
+    def add(self, number: int) -> None:
+        """
+        Add the number to an internal data structure..
+        """
+        self.nums.append(number)
+        self.dic[number] = len(self.nums) - 1
+        
+
+    def find(self, value: int) -> bool:
+        """
+        Find if there exists any pair of numbers which sum is equal to the value.
+        """
+        for i in range(len(self.nums)):
+            tar = value - self.nums[i]
+            if tar in self.dic and self.dic[tar] != i: return True
+        return False
+```
+```java []
+class TwoSum {
+    private Map<Integer, Integer> map;
+    private List<Integer> nums = new ArrayList<>();
+    /** Initialize your data structure here. */
+    public TwoSum() {
+        map = new HashMap<>();
+    }
+    
+    /** Add the number to an internal data structure.. */
+    public void add(int number) {
+        nums.add(number);
+        map.put(number, nums.size() - 1);
+    }
+    
+    /** Find if there exists any pair of numbers which sum is equal to the value. */
+    public boolean find(int value) {
+        for(int i = 0; i < nums.size(); i++){
+            int tar = value - nums.get(i);
+            if(map.containsKey(tar) && map.get(tar) > i) return true;
+        }
+        return false;
+    }
+}
+```
 
 ---
 
 ### 186. Reverse Words in a String II
 > 
->> 标签：
+>> 标签：字符串
 
 ---
 
+- 题意要求空间复杂度O(1)，因此必须要在原数组上直接修改；
+- 设倒序操作为`T`，`str = a b c`，则有：
+  - `c b a = ( aT bT cT )T`
+- 因此，我们只需要将`a`,`b`,`c`分别倒置，再将整个str倒置，即可得到`c b a`。
 
+```python []
+class Solution:
+    def reverseWords(self, s: [str]) -> None:
+        """
+        Do not return anything, modify str in-place instead.
+        """
+        i = 0
+        for j in range(len(s)): # aT bT c
+            if s[j] != ' ': continue
+            self.reverse(s, i, j)
+            i = j + 1
+        self.reverse(s, i, len(s)) # aT bT cT
+        self.reverse(s, 0, len(s)) # c b a
+    def reverse(self, s, i, j):
+        for k in range(i, (i + j) // 2):
+            g = j - 1 - k + i
+            s[k], s[g] = s[g], s[k]
+```
+```java []
+class Solution {
+    public void reverseWords(char[] str) {
+        int i = 0;
+        for(int j = 0; j < str.length; j++){ // aTbTc
+            if(str[j] != ' ') continue;
+            reverse(str, i, j);
+            i = j + 1;
+        }
+        reverse(str, i, str.length); // aTbTcT
+        reverse(str, 0, str.length); // cba
+    }
+    private void reverse(char[] str, int i, int j){
+        for(int k = i; k < (i + j) / 2; k++){
+            char tmp = str[k];
+            int g = j - 1 - k + i;
+            str[k] = str[g];
+            str[g] = tmp;
+        }
+    }
+}
+```
 
 ---
 
 ### 557. Reverse Words in a String III
 > 
->> 标签：
+>> 标签：字符串，双指针
 
 ---
 
+- `left`, `right`双指针通过空格定位每个单词，并翻转每个单词；
+- Python可一行。
 
+```python []
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        l = []
+        i, left, right = 0, 0, -2
+        while i < len(s) + 1:
+            if i == len(s) or s[i] == ' ':
+                left, right = right + 1, i - 1
+                for j in range(right, left, -1):
+                    l.append(s[j])
+                l.append(' ')
+            i += 1
+        return "".join(l[:-1])
+```
+```python[]
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        return ' '.join(i[::-1] for i in s.split())
+```
+```java []
+class Solution557 {
+    public String reverseWords(String s) {
+        String[] strs = s.split(" ");
+        StringBuffer res = new StringBuffer("");
+        for(String str : strs){
+            StringBuffer tmp = new StringBuffer(str);
+            res.append(" ");
+            res.append(tmp.reverse().toString());
+        }
+        return res.toString().trim();    
+    }
+}
+```
 
 ---
 

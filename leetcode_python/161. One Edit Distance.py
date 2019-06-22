@@ -6,7 +6,7 @@ class Solution:
         while i < len(s) and s[i] == t[i]: i += 1
         if i == len(s): return bool(dif)
         if not dif: i += 1
-        while i < len(s) and s[i] == t[i+dif]: i += 1
+        while i < len(s) and s[i] == t[i + dif]: i += 1
         return i == len(s)
 
 s = Solution()
