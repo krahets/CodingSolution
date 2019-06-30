@@ -895,7 +895,7 @@ class Solution {
                 matrix[i][j] = obstacleGrid[i - 1][j - 1] != 1 ? matrix[i - 1][j] + matrix[i][j - 1] : 0;
             }
         }
-        return matrix[obstacleGrid.length + 1][obstacleGrid[0].length + 1];
+        return matrix[matrix.length - 1][matrix[0].length - 1];
     }
 }
 ```
