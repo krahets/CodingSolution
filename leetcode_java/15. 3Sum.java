@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 class Solution {
     public List<List<Integer>> threeSum(int[] nums) {
         Arrays.sort(nums);
@@ -9,7 +13,7 @@ class Solution {
             while(i < j){
                 int sum = nums[k] + nums[i] + nums[j];
                 if(sum < 0){
-                    while(i<j && nums[i] == nums[++i]) {}
+                    while(i < j && nums[i] == nums[++i]) {}
                 } else if (sum > 0) {
                     while(i < j && nums[j] == nums[--j]) {}
                 } else {
