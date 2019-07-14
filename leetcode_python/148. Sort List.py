@@ -27,3 +27,6 @@ class Solution:
             h = h.next
         h.next = left if left else right
         return res.next
+
+s = Solution()
+s.sortList(head)
