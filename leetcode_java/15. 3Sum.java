@@ -13,13 +13,13 @@ class Solution {
             while(i < j){
                 int sum = nums[k] + nums[i] + nums[j];
                 if(sum < 0){
-                    while(i < j && nums[i] == nums[++i]) {}
+                    while(i < j && nums[i] == nums[++i]);
                 } else if (sum > 0) {
-                    while(i < j && nums[j] == nums[--j]) {}
+                    while(i < j && nums[j] == nums[--j]);
                 } else {
                     res.add(new ArrayList<Integer>(Arrays.asList(nums[k], nums[i], nums[j])));
-                    while(i<j && nums[i] == nums[++i]) {}
-                    while(i < j && nums[j] == nums[--j]) {}
+                    while(i < j && nums[i] == nums[++i]);
+                    while(i < j && nums[j] == nums[--j]);
                 }
             }
         }
