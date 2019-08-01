@@ -2664,7 +2664,7 @@ class Solution:
 
 ---
 
-声明两个指针n1, n2，指针n1先向前走k1步，找到链表第k+1个node，然后指针n1，n2一起走，当n2走过最后一个node时（指向None），n1即是倒数第k个node
+声明两个指针n1, n2，指针n1先向前走k步，找到链表第k+1个node，然后指针n1，n2一起走，当n2走过最后一个node时（指向None），n1即是倒数第k个node
 ```python
 class Solution:
     def FindKthToTail(self, head, k):
@@ -4326,7 +4326,7 @@ class Solution:
 
 
 ------
-
+#### 知识图谱：
 
 数组
 排序
