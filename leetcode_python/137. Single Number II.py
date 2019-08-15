@@ -8,11 +8,15 @@ class Solution:
             ones &= ~threes # three 为1时将one和two归零
             twos &= ~threes
         return ones
+
+
+class Solution:
+    def singleNumber(self, nums: [int]) -> int:
+        ones, twos = 0, 0
+        for num in nums:
+            ones = ones ^ num & ~twos
+            twos = twos ^ num & ~ones
+        return ones
         
 s = Solution()
-print(s.singleNumber([0,0,0,2,3,3,3]))
-
-
-print(0 & (~0xFFFFFFFF))
-
-print(0^0)
+print(s.singleNumber([2,2,3,2]))

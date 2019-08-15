@@ -1,14 +1,16 @@
 # CodingSolution
+
 This repository includes coding solutions of Leetcode and 剑指offer using Python and Java.
 
 ## LeetCode
+
 The solutions of leetcode are updated daily, while using [Python](./leetcode_python) and [Java](./leetcode_java).
 
 ---
 
 ### 1.two-sum
-> 
->> 标签：数组，哈希表Hash
+
+> 标签：数组，哈希表Hash
 
 ---
 
@@ -24,6 +26,7 @@ class Solution:
                 return [dic[str(target - nums[i])], i]
             dic[str(nums[i])] = i
 ```
+
 ```java []
 class Solution {
     public int[] twoSum(int[] nums, int target) {
@@ -43,8 +46,8 @@ class Solution {
 ---
 
 ### 2. Add Two Numbers
-> 
->> 标签：链表
+
+> 标签：链表
 
 ---
 
@@ -70,6 +73,7 @@ class Solution:
         if carry: head.next = ListNode(1)
         return res.next
 ```
+
 ```java []
 class Solution {
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
@@ -95,8 +99,8 @@ class Solution {
 ---
 
 ### 3. Longest Substring Without Repeating Characters
-> 
->> 标签：双指针，哈希表Hash，字符串
+
+> 标签：双指针，哈希表Hash，字符串
 
 ---
 
@@ -119,6 +123,7 @@ class Solution:
             res = max(res, r - l + 1)
         return res
 ```
+
 ```java []
 class Solution {
     public int lengthOfLongestSubstring(String s) {
@@ -139,8 +144,8 @@ class Solution {
 ---
 
 ### 5. Longest Palindromic Substring
-> 
->> 标签：字符串，双指针
+
+> 标签：字符串，双指针
 
 ---
 
@@ -171,6 +176,7 @@ class Solution:
             right += 1
         return right - left - 1
 ```
+
 ```java []
 class Solution {
     public String longestPalindrome(String s) {
@@ -201,8 +207,8 @@ class Solution {
 ---
 
 ### 7. Reverse Integer
-> 
->> 标签：位运算
+
+> 标签：位运算
 
 ---
 
@@ -243,8 +249,8 @@ class Solution {
 
 
 ### 8. String to Integer (atoi)
-> 
->> 标签：字符串
+
+> 标签：字符串
 
 ---
 
@@ -274,8 +280,8 @@ class Solution:
 ---
 
 ### 9. Palindrome Number
-> 
->> 标签：运算机制
+
+> 标签：运算机制
 
 ---
 
@@ -295,6 +301,7 @@ class Solution:
             r = r * 10 + rem
         return x == r or x == r // 10
 ```
+
 ```java []
 class Solution {
     public boolean isPalindrome(int x) {
@@ -311,9 +318,69 @@ class Solution {
 
 ---
 
+### 11. Container With Most Water （LeetCode精选）
+
+> 标签：双指针
+
+---
+
+#### 思路：
+
+- **算法流程：** 设置双指针 $i$,$j$ 分别位于容器壁两端，根据规则移动指针（后续说明），并且更新面积最大值 `res`，直到 `i == j` 时返回 `res`。
+
+- **指针移动规则与证明：** 每次选定围成水槽两板高度 $h[i]$,$h[j]$ 中的短板，向中间收窄 $1$ 格。以下证明：
+  - 设每一状态下水槽面积为 $S(i, j)$,$(0 <= i < j < n)$，由于水槽的实际高度由两板中的短板决定，则可得面积公式 $S(i, j) = min(h[i], h[j]) × (j - i)$。
+  - 在每一个状态下，无论长板或短板收窄 $1$ 格，都会导致水槽 **底边宽度** $-1$：
+    - 若向内移动短板，水槽的短板 $min(h[i], h[j])$ 可能变大，因此水槽面积 $S(i, j)$ 可能增大。
+    - 若向内移动长板，水槽的短板 $min(h[i], h[j])$ 不变或变小，下个水槽的面积一定小于当前水槽面积。
+  - 因此，向内收窄短板可以获取面积最大值。换个角度理解： 
+    - 若不指定移动规则，所有移动出现的 $S(i, j)$ 的状态数为 $C(n, 2)$，即暴力枚举出所有状态。
+    - 在状态 $S(i, j)$ 下向内移动短板至 $S(i + 1, j)$（假设 $h[i] < h[j]$ ），则相当于消去了 ${S(i, j - 1), S(i, j - 2), ... , S(i, i + 1)}$ 状态集合。而所有消去状态的面积一定 $<= S(i, j)$：
+      - 短板高度：相比 $S(i, j)$ 相同或更短（$<= h[i]$）；
+      - 底边宽度：相比 $S(i, j)$ 更短。
+    - 因此**所有消去的状态的面积都** $< S(i, j)$。通俗的讲，我们每次向内移动短板，所有的消去状态都**不会导致丢失面积最大值** 。
+
+- **复杂度分析**：
+  - 时间复杂度 $O(N)$，双指针遍历一次底边宽度 $N$ 。
+  - 空间复杂度 $O(1)$，指针使用常数额外空间。
+
+<![Picture1.png](https://pic.leetcode-cn.com/a2a97349454ee3657a8a3d9db0399921894c7f581c2e9540d0e2c3df122fec95-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/239c53727f392398829ae835df2d4b8dce374954b2aac2e3745b3ff9c32d7a9f-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/45e1d202910029048aea0e36b826a469b9a03ebbbaae966f27245ac737aea300-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/bac587e94230e323ac6b50defb95f0bd0a6693d2a931e244c4770f055276bb3f-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/2859207a970b8947651042ecbe92f2b7ebf8665853dd300433fdd8b87a0bd275-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/705f584789af7dba85e058b8c7a6dadc652fa591b535c5699f825d745fb2412c-Picture6.png),![Picture7.png](https://pic.leetcode-cn.com/a6aea4baaaaf83691a260478af307668c26333e14656c3c1bbc0fe06f903d666-Picture7.png),![Picture8.png](https://pic.leetcode-cn.com/ef68ae29ae929b637c71e2108428a5010bc5e40acef7b0bd16d44f3a037b0bed-Picture8.png)>
+
+#### 代码：
+
+```Python []
+class Solution:
+    def maxArea(self, height: List[int]) -> int:
+        i, j, res = 0, len(height) - 1, 0
+        while i < j:
+            if height[i] < height[j]:
+                res = max(res, height[i] * (j - i))
+                i += 1
+            else:
+                res = max(res, height[j] * (j - i))
+                j -= 1
+        return res
+```
+
+```Java []
+class Solution {
+    public int maxArea(int[] height) {
+        int i = 0, j = height.length - 1, res = 0;
+        while(i < j){
+            res = height[i] < height[j] ? 
+                Math.max(res, (j - i) * height[i++]): 
+                Math.max(res, (j - i) * height[j--]); 
+        }
+        return res;
+    }
+}
+```
+
+---
+
 ### 12. Integer to Roman
-> 
->> 标签：字符串
+
+> 标签：字符串
 
 ---
 
@@ -341,6 +408,7 @@ class Solution:
             i += 1
         return res
 ```
+
 ```java []
 class Solution {
     private static final int[] values = {
@@ -372,8 +440,8 @@ class Solution {
 ---
 
 ### 13. Roman to Integer
-> 
->> 标签：字符串，哈希表Hash
+
+> 标签：字符串，哈希表Hash
 
 ---
 
@@ -400,6 +468,7 @@ class Solution:
                 i += 1
         return res
 ```
+
 ```java []
 class Solution {
     private Map<Character, Integer> roman = new HashMap<Character, Integer>() {
@@ -428,41 +497,219 @@ class Solution {
 
 ---
 
-### 20. Valid Parentheses
-> 
->> 标签：栈，哈希表Hash
+### 14. Longest Common Prefix
+
+> 标签：
 
 ---
 
-- 借助栈先入后出的特点，正好符合此题目的要求。
-- 建立Map构建左右括号对应关系。
-- 遍历`str`将`char`依次入栈，每次判断是否是正确对应括号，如果是则出栈，最终如果`stack`为空则是valid的。
+- 先统计`strs`中最短字符串长度`min`，之后用`min`做判断边界；
+- 判断`[0,min]`范围内，所有字符串的公共头部，若发现不同则直接返回；
+- 若`[0,min]`范围内所有字符串相同则直接返回。`min == 0`需要做特殊处理。
+
+```python []
+class Solution:
+    def longestCommonPrefix(self, strs: [str]) -> str:
+        if not strs: return ""
+        mi = len(strs[0])
+        for s in strs[1:]: mi = min(mi, len(s))
+        for i in range(mi):
+            for j in range(len(strs) - 1):
+                if strs[j][i] != strs[j + 1][i]:
+                    return strs[j][:i]
+        return strs[0][:i+1] if mi else ""
+```
+
+```java []
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if(strs.length == 0) return "";
+        int min = strs[0].length(), i = 0;
+        for(String s : strs) min = Math.min(min, s.length());
+        for(; i < min; i++) {
+            for(int j = 0; j < strs.length - 1; j++){
+                if(strs[j].charAt(i) != strs[j+1].charAt(i)) return strs[j].substring(0,i);
+            }
+        }
+        return min > 0 ? strs[0].substring(0, i) : "";
+    }
+}
+```
+
+---
+
+### 15. 3Sum
+
+> 标签：双指针
+
+---
+
+#### 解题思路：
+
+- 暴力法搜索为 $O(N^3)$ 时间复杂度，可通过双指针动态消去无效解来优化效率。
+- **双指针法铺垫：** 先将给定 `nums` 排序，复杂度为 $O(NlogN)$。
+- **双指针法思路：** 固定 $3$ 个指针中最左（最小）数字的指针 `k` ，双指针 `i`，`j` 分设在数组索引 $(k, len(nums))$ 两端，通过双指针交替向中间移动，记录对于每个固定指针`k`的所有满足`nums[k] + nums[i] + nums[j] == 0`的 `i`,`j` 组合：
+  1. 当 `nums[k] > 0` 时直接`break`跳出：因为 `nums[j] >= nums[i] >= nums[k] > 0`，即 $3$ 个数字都大于 $0$ ，在此固定指针 `k` 之后不可能再找到结果了。
+  2. 当 `k > 0`且`nums[k] == nums[k - 1]`时即跳过此元素`nums[k]`：因为已经将 `nums[k - 1]` 的所有组合加入到结果中，本次双指针搜索只会得到重复组合。
+  3. `i`，`j` 分设在数组索引 $(k, len(nums))$ 两端，当`i < j`时循环计算`s = nums[k] + nums[i] + nums[j]`，并按照以下规则执行双指针移动：
+     - 当`s < 0`时，`i += 1`并跳过所有重复的`nums[i]`；
+     - 当`s > 0`时，`j -= 1`并跳过所有重复的`nums[j]`；
+     - 当`s == 0`时，记录组合`[k, i, j]`至`res`，执行`i += 1`和`j -= 1`并跳过所有重复的`nums[i]`和`nums[j]`，防止记录到重复组合。
+- **复杂度分析：**
+  - 时间复杂度 $O(N^2)$：其中固定指针`k`循环复杂度 $O(N)$，双指针 `i`，`j` 复杂度 $O(N)$。
+  - 空间复杂度 $O(1)$：指针使用常数大小的额外空间。
+
+<![Picture1.png](https://pic.leetcode-cn.com/fe0bf4f1476950365f4daf7f6c69959a26efa4ce4838d9ab2ebdc653720d5bc4-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/030717e1cde175687fae914f3f49b3f17c6aaa75656b4be8ab49be14790d691c-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/1638b06c85ea703e8c5266f6c2a5127ea622cad92f098e0faef888c664e56adf-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/c04ad52a5c4335e6a7f5f23c31de4fda75dc79156f218977e82436935c6aec22-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/17f8dd95e4b8ea334a28a48d597faf60f680eb45eb5dc9b31d18d0679b099954-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/f3a5212604b0348c004653ae3bf31e5871f768df0363aea713ab3b504d30694f-Picture6.png),![Picture7.png](https://pic.leetcode-cn.com/968378e44e71c89151670d3c0c6528d3599c372c10b51301756883555c0f7818-Picture7.png),![Picture8.png](https://pic.leetcode-cn.com/13e88630eba35158eea4540a4a7e057a5035d88084cdd497ff444d741ffb6ac5-Picture8.png),![Picture9.png](https://pic.leetcode-cn.com/7d06396d1df00b6654c05d0ee059645d57bc1a0d97d7417b0caacf9cc1b1049e-Picture9.png),![Picture10.png](https://pic.leetcode-cn.com/2e170ae1dc32b71606f9782d88c9ea61324675213b3c871c55b2944a2c37c075-Picture10.png)>
+
+#### 代码：
+
+```Python []
+class Solution:
+    def threeSum(self, nums: [int]) -> [[int]]:
+        nums.sort()
+        res, k = [], 0
+        for k in range(len(nums) - 2):
+            if nums[k] > 0: break # 1. because of j > i > k.
+            if k > 0 and nums[k] == nums[k - 1]: continue # 2. skip the same `nums[k]`.
+            i, j = k + 1, len(nums) - 1
+            while i < j: # 3. double pointer
+                s = nums[k] + nums[i] + nums[j]
+                if s < 0:
+                    i += 1
+                    while i < j and nums[i] == nums[i - 1]: i += 1
+                elif s > 0:
+                    j -= 1
+                    while i < j and nums[j] == nums[j + 1]: j -= 1
+                else:
+                    res.append([nums[k], nums[i], nums[j]])
+                    i += 1
+                    j -= 1
+                    while i < j and nums[i] == nums[i - 1]: i += 1
+                    while i < j and nums[j] == nums[j + 1]: j -= 1
+        return res
+```
+
+```Java []
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> res = new ArrayList<>();
+        for(int k = 0; k < nums.length - 2; k++){
+            if(nums[k] > 0) break;
+            if(k > 0 && nums[k] == nums[k - 1]) continue;
+            int i = k + 1, j = nums.length - 1;
+            while(i < j){
+                int sum = nums[k] + nums[i] + nums[j];
+                if(sum < 0){
+                    while(i < j && nums[i] == nums[++i]);
+                } else if (sum > 0) {
+                    while(i < j && nums[j] == nums[--j]);
+                } else {
+                    res.add(new ArrayList<Integer>(Arrays.asList(nums[k], nums[i], nums[j])));
+                    while(i < j && nums[i] == nums[++i]);
+                    while(i < j && nums[j] == nums[--j]);
+                }
+            }
+        }
+        return res;
+    }
+}
+```
+
+---
+
+### 16. 3Sum Closest
+
+> 标签：栈，哈希表Hash
+
+---
+
+- 如果使用Brute force，时间复杂度为`O(n3)`，可以进一步简化。
+- 简化思路和`15题`类似：先将数组排序，再使用双指针法：
+  - 指针`k`遍历整个排序数组，目标是找到所有不重复`nums[k]`的所有解`tmp`，并更新记录最优解；
+  - 对于每个nums[k]，将i,j双指针置于`k+1, len(nums) - 1`，双指针根据`tmp`与`target`大小关系逐渐向中间逼近，直到`i == j`跳出。得到每个解后，判断其与当前最优解谁更优，并更新`res`。
+  - 本解答`Java`代码在`i` `j`指针逼近过程中跳过重复元素，可以减少计算`tmp`次数，提升效率。
+- 排序复杂度`O(nlogn)`，算法整体复杂度`O(n2)`。
+
+```python []
+class Solution:
+    def threeSumClosest(self, nums: [int], target: int) -> int:
+        nums.sort()
+        res = float("inf")
+        for k in range(len(nums) - 2):
+            if k > 0 and nums[k] == nums[k - 1]: continue
+            i, j = k + 1, len(nums) - 1
+            while i < j:
+                tmp = nums[k] + nums[i] + nums[j]
+                if abs(tmp - target) < abs(res - target): res = tmp
+                if tmp > target: j -= 1
+                elif tmp < target: i += 1
+                else: return target
+        return res
+```
+
+```java []
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        Arrays.sort(nums);
+        long res = (long)Integer.MAX_VALUE;
+        for (int k = 0; k < nums.length - 2; k++) {
+            if(k > 0 && nums[k] == nums[k - 1]) continue;
+            int i = k + 1, j = nums.length - 1;
+            while(i < j) {
+                int tmp = nums[k] + nums[i] + nums[j];
+                if(Math.abs(tmp - target) < Math.abs(res - target)) res = tmp;
+                if(tmp > target) while(i < j && nums[j] == nums[--j]);
+                else if(tmp < target) while(i < j && nums[i] == nums[++i]);
+                else return target;
+            }
+        }
+        return (int)res;
+    }
+}
+```
+
+---
+
+### 20. Valid Parentheses
+
+> 标签：栈，哈希表Hash
+
+---
+
+- 建立`HashMap`构建左右括号对应关系，`key左括号`, `value右括号`。
+- 遍历`s`中所有括号，借助栈先入后出的特点，每次判断：
+  - 如果`stack`为空 or `c`是左括号，则入栈；
+  - 如果`stack`栈顶与`c`形成一对括号，则栈顶出栈；
+  - 否则，到此处已经违背了括号对应原则，直接返回`false`。
+- 此迭代过程遇到`s中第一个元素为右括号`的情况时，无法提前返回，因此在进入迭代前进行单独处理。
+- 跳出迭代后，如果`stack`为空则是符合括号原则的（为了处理"["，"]"这类特殊情况）。
 
 ```python []
 class Solution:
     def isValid(self, s: str) -> bool:
         dic = {'{': '}',  '[': ']', '(': ')'}
+        if s and s[0] not in dic: return False
         stack = []
-        for i in range(len(s)):
-            if stack and stack[-1] in dic.keys() and s[i] == dic[stack[-1]]:
-                stack.pop()
-            else:
-                stack.append(s[i])
+        for c in s:
+            if not stack or c in dic: stack.append(c)
+            elif stack[-1] in dic and dic[stack[-1]] == c: stack.pop()
+            else: return False  
         return not stack
 ```
+
 ```java []
 class Solution {
     private static final Map<Character,Character> map = new HashMap<Character,Character>(){{
         put('{','}'); put('[',']'); put('(',')');
     }};
     public boolean isValid(String s) {
+        if(s.length() > 0 && !map.containsKey(s.charAt(0))) return false;
         Stack<Character> stack = new Stack<>();
         for(Character c : s.toCharArray()){
-            if(!stack.isEmpty() && map.containsKey(stack.peek()) && map.get(stack.peek()) == c){
-                stack.pop();
-            } else {
-                stack.push(c);
-            }
+            if(stack.isEmpty() || map.containsKey(c)) stack.push(c);
+            else if(map.get(stack.peek()) == c) stack.pop();
+            else return false;
         }
         return stack.isEmpty();
     }
@@ -472,15 +719,14 @@ class Solution {
 ---
 
 ### 21. Merge Two Sorted Lists
-> 
->> 标签：双指针，链表
+
+> 标签：双指针，链表
 
 ---
 
 - 建立一个辅助`node`作为链表头部；
 - 设两指针`l1`，`l2`分别指向两链表头部，根据指针`node`值大小改变`next`指向，交替前进；
 - 最后将`l1`、`l2`剩余尾部加入，返回即可。
-
 
 ```python []
 class Solution:
@@ -494,6 +740,7 @@ class Solution:
         head.next = l1 if not l2 else l2
         return res.next
 ```
+
 ```java []
 class Solution {
     public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
@@ -519,8 +766,8 @@ class Solution {
 ---
 
 ### 23. Merge k Sorted Lists
-> 
->> 标签：链表，归并，分治
+
+> 标签：链表，归并，分治
 
 ---
 
@@ -531,39 +778,26 @@ class Solution {
 class Solution:
     def mergeKLists(self, lists: List[ListNode]) -> ListNode:
         while len(lists) > 1:
-            tmp = []
-            for i in range(0, len(lists), 2):
-                r = None if i == len(lists) - 1 else lists[i+1]
-                tmp.append(self.merge(lists[i], r))
-            lists = tmp
+            lists.append(self.merge(lists.pop(0), lists.pop(0)))
         return lists[0] if lists else None
-
     def merge(self, h1, h2):
         res = head = ListNode(0)
         while h1 and h2:
-            if h1.val <= h2.val:
-                head.next = h1
-                h1 = h1.next
-            else:
-                head.next = h2
-                h2 = h2.next
+            if h1.val <= h2.val: head.next, h1 = h1, h1.next
+            else: head.next, h2 = h2, h2.next
             head = head.next
         head.next = h1 if not h2 else h2
         return res.next
 ```
+
 ```java []
 class Solution {
     public ListNode mergeKLists(ListNode[] lists) {
-        List<ListNode> listss = Arrays.asList(lists);
-        while (listss.size() > 1) {
-            List<ListNode> tmp = new ArrayList<>();
-            for (int i = 0; i < listss.size(); i += 2) {
-                ListNode r = i == listss.size() - 1 ? null : listss.get(i + 1);
-                tmp.add(merge(listss.get(i), r));
-            }
-            listss = tmp;
+        LinkedList<ListNode> res = new LinkedList(Arrays.asList(lists));
+        while (res.size() > 1) {
+            res.addLast(merge(res.removeFirst(),res.removeFirst()));
         }
-        return listss.size() == 0 ? null : listss.get(0);
+        return res.size() == 0 ? null : res.get(0);
     }
 
     private ListNode merge(ListNode h1, ListNode h2) {
@@ -588,8 +822,8 @@ class Solution {
 ---
 
 ### 24. Swap Nodes in Pairs
-> 
->> 标签：链表，递归
+
+> 标签：链表，递归
 
 ---
 
@@ -609,6 +843,7 @@ class Solution:
         pre.next = head
         return res.next
 ```
+
 ```Python []
 class Solution:
     def swapPairs(self, head: ListNode) -> ListNode:
@@ -618,6 +853,7 @@ class Solution:
         nex.next = head
         return nex
 ```
+
 ```Java []
 class Solution {
     public ListNode swapPairs(ListNode head) {
@@ -638,9 +874,54 @@ class Solution {
 
 ---
 
+### 26. Remove Duplicates from Sorted Array
+
+> 标签：双指针
+
+---
+
+- 需要做两件事：
+    - 统计数组中不同数字数量`k`；
+    - 修改数组前`k`个元素为这些不同数字。
+- 由于数组已经完成排序，因此设定第一个指针`i`，遍历数组，每遇到`nums[i] != nums[i - 1]`,就说明遇到了新的不同数字，记录之；
+- 设定第二个指针`k`，每遇到新的不同数字执行`k += 1`，`k`有两个用途：
+    - 记录数组中不同数字的数量；
+    - 作为修改数组元素的`index`。
+- 最终，返回`k`即可。
+
+```python []
+class Solution:
+    def removeDuplicates(self, nums: [int]) -> int:
+        if not nums: return 0
+        k = 1
+        for i in range(1, len(nums)):
+            if nums[i] != nums[i - 1]:
+                nums[k] = nums[i]
+                k += 1
+        return k
+```
+
+```java []
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        if (nums.length == 0) return 0;
+        int k = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] != nums[i - 1]) {
+                nums[k] = nums[i];
+                k++;
+            }
+        }
+        return k;
+    }
+}
+```
+
+---
+
 ### 28. Implement strStr()
-> 
->> 标签：字符串
+
+> 标签：字符串
 
 ---
 
@@ -665,6 +946,7 @@ class Solution(object):
     def strStr1(self, haystack, needle):
         return haystack.find(needle)
 ```
+
 ```java []
 class Solution {
     public int strStr(String haystack, String needle) {
@@ -682,9 +964,72 @@ class Solution {
 
 ---
 
+### 33. Search Insert Position
+
+> 标签：二分法
+
+---
+
+- 题目要求复杂度`O(logN)`，自然联想到二分法。
+- 若是一个普通排序数组，直接`二分查找`就可以，本题的复杂处在于给定数组已被`旋转`；
+- 因此，我们先使用二分法找到旋转数组的分界点`i`，再确定`target`在哪段数组中，再应用一次`二分查找`，返回`index`。
+    - 本题解找到的分界点`i`是第二段数组的第一个元素，某些数组未被旋转，也将其看作`第二段数组`处理;
+    - 若当前数字不在第一段且不在第二段数组，直接返回`-1`;
+    - `二分查找`未找到`target`，返回`-1`。
+
+```python []
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+        if not nums: return -1
+        i, j = 0, len(nums) - 1
+        while i < j:
+            m = (i + j) // 2
+            if nums[m] < nums[j]: j = m
+            else: i = m + 1
+        if nums[i] <= target <= nums[-1]: i, j = i, len(nums) - 1
+        elif nums[0] <= target <= nums[i - 1]: i, j = 0, i - 1
+        else: return -1
+        while i <= j:
+            m = (i + j) // 2
+            if nums[m] > target: j = m - 1
+            elif nums[m] < target: i = m + 1
+            else: return m
+        return -1
+```
+
+```java []
+class Solution {
+    public int search(int[] nums, int target) {
+        if(nums.length == 0) return -1;
+        int i = 0, j = nums.length - 1;
+        while(i < j){
+            int m = (i + j) / 2;
+            if(nums[m] < nums[j]) j = m;
+            else i = m + 1;
+        }
+        if(i == 0 || nums[i] <= target && target <= nums[nums.length - 1])
+            j = nums.length - 1;
+        else if(nums[0] <= target && target <= nums[i - 1]){
+            j = i - 1;
+            i = 0;
+        }
+        else return -1;
+        while(i <= j) {
+            int m = (i + j) / 2;
+            if(nums[m] < target) i = m + 1;
+            else if(nums[m] > target) j = m - 1;
+            else return m;
+        }
+        return -1;
+    }
+}
+```
+
+---
+
 ### 35. Search Insert Position
-> 
->> 标签：数组，二分法
+
+> 标签：数组，二分法
 
 ---
 
@@ -692,7 +1037,6 @@ class Solution {
   - 当插入数字和`nums`中某数字相等时，插入到左边还是右边？`本题要求插到左边`；
   - 插入数字在`nums`第一个数字左边，或在最后一个数字右边；
 - 推荐记住其中的几个关键点写法。
-
 
 ```python []
 class Solution:
@@ -704,6 +1048,7 @@ class Solution:
             else: right = mid - 1
         return left
 ```
+
 ```java []
 class Solution {
     public int searchInsert(int[] nums, int target) {
@@ -720,9 +1065,102 @@ class Solution {
 
 ---
 
+### 43. Multiply Strings
+
+> 标签：
+
+---
+
+- 设两数字`num1`, `num2`，其乘积等于`num2`每一位与`num1`相乘，再将所有结果相加。
+- 模拟这个竖式乘法的过程即可。
+
+```python []
+class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+        if num1 == "0" or num2 == "0": return "0"
+        res = []
+        for loc in range(len(num2)): # multiply
+            x2 = ord(num2[len(num2) - 1 - loc]) - ord('0')
+            ans, tmp, car = [], 0, 0
+            for n1 in num1[::-1]:
+                x1 = ord(n1) - ord('0')
+                tmp = x1 * x2 + car
+                car = tmp // 10
+                ans.append(str(tmp % 10))
+            if car: ans.append(str(car))
+            ans.reverse()
+            ans.extend(['0' for _ in range(loc)])
+            i, j, car = len(res) - 1, len(ans) - 1, 0
+            res_tmp = []
+            while i >= 0 or j >= 0: # add
+                a1 = ord(res[i]) - ord('0') if i >= 0 else 0
+                a2 = ord(ans[j]) - ord('0') if j >= 0 else 0
+                tmp = a1 + a2 + car
+                car = tmp // 10
+                res_tmp.append(str(tmp % 10))
+                i, j = i - 1, j - 1
+            if car: res_tmp.append("1")
+            res_tmp.reverse()
+            res = res_tmp
+        return "".join(res)
+```
+
+---
+
+### 46. Permutations
+
+> 标签：递归
+
+---
+
+- 将第`j`个数字与第`j`,`j+1`,`j+2`,...,`len(nums) - 1`个数字分别交换，得到`len(nums) - j`种情况；
+- 在每种情况下递归，将第`j+1`处数字与第`j+1`,`j+2`,...,`len(nums) - 1`处数字分别交换；
+    - 每个递归跳出后，要将交换过的元素还原，这样才能实现第一条所说的内容。
+    - 直到`j == len(nums) - 1`，代表此种交换组合下已经交换完毕，记录答案。
+
+```python []
+class Solution:
+    def permute(self, nums: [int]) -> [[int]]:
+        self.res = []
+        self.swap(nums, 0)
+        return self.res
+    def swap(self, nums, j):
+        if j == len(nums) - 1: self.res.append(list(nums))
+        for i in range(j, len(nums)):
+            nums[i], nums[j] = nums[j], nums[i]
+            self.swap(nums, j+1)
+            nums[i], nums[j] = nums[j], nums[i]
+
+```
+
+```java []
+class Solution {
+    private List<List<Integer>> res = new ArrayList<>();
+    public List<List<Integer>> permute(int[] nums) {
+        swap(nums, 0);
+        return res;
+    }
+    private void swap(int[] nums, int j) {
+        if (j == nums.length - 1) {
+            List<Integer> list = new ArrayList<>();
+            for (int num : nums) list.add(num);
+            res.add(list);
+        }
+        for (int i = j; i < nums.length; i++) {
+            int tmp = nums[i];
+            nums[i] = nums[j]; nums[j] = tmp;
+            swap(nums, j + 1);
+            nums[j] = nums[i]; nums[i] = tmp;
+        }
+    }
+}
+```
+
+---
+
 ### 53. Maximum Subarray
-> 
->> 标签：动态规划，数组
+
+> 标签：动态规划，数组
 
 ---
 
@@ -736,6 +1174,7 @@ class Solution:
             nums[i] = max(nums[i-1] + nums[i], nums[i])
         return max(nums)
 ```
+
 ```java []
 class Solution {
     public int maxSubArray(int[] nums) {
@@ -752,17 +1191,16 @@ class Solution {
 ---
 
 ### 54. Spiral Matrix
-> 
->> 标签：数组
+
+> 标签：数组
 
 ---
 
 - 此方法不使用额外空间`O(1)`，时间复杂度`O(MN)`：
-  - `i`,`j`记录目前走到的位置；
+  - `i`, `j`记录目前走到的位置；
   - `h`, `l`记录剩余矩阵的高度、宽度；
   - 沿着右下左上的顺序走，每走完一条直线将对应`高度/宽度-1`；
   - 若剩余矩阵`高度or宽度==0`，代表已经走完`break`。
-
 
 ```python []
 class Solution:
@@ -794,6 +1232,7 @@ class Solution:
             if not l: break
         return res
 ```
+
 ```java []
 class Solution {
     public List<Integer> spiralOrder(int[][] matrix) {
@@ -820,20 +1259,88 @@ class Solution {
 }
 ```
 
+---
+
+### 59. Spiral Matrix II
+
+> 标签：数组
+
+---
+
+#### 思路：
+
+- 生成一个 `n×n` 空矩阵 `mat`，随后模拟整个向内环绕的填入过程：
+  - 定义当前左右上下边界 `l,r,t,b`，初始值 `num = 1`，迭代终止值 `tar = n * n`；
+  - 当 `num <= tar` 时，始终按照 `从左到右` `从上到下` `从右到左` `从下到上` 填入顺序循环，每次填入后：
+    - 执行 `num += 1`：得到下一个需要填入的数字；
+    - 更新边界：例如从左到右填完后，上边界` t += 1`，相当于上边界向内缩 1。
+  - 使用`num <= tar`而不是`l < r || t < b`作为迭代条件，是为了解决当`n`为奇数时，矩阵中心数字无法在迭代过程中被填充的问题。
+- 最终返回 `mat` 即可。  
+
+![Picture1.png](https://pic.leetcode-cn.com/ccff416fa39887c938d36fec8e490e1861813d3bba7836eda941426f13420759-Picture1.png)
+
+#### 代码：
+
+```Java []
+class Solution {
+    public int[][] generateMatrix(int n) {
+        int l = 0, r = n - 1, t = 0, b = n - 1;
+        int[][] mat = new int[n][n];
+        int num = 1, tar = n * n;
+        while(num <= tar){
+            for(int i = l; i <= r; i++) mat[t][i] = num++; // left to right.
+            t++;
+            for(int i = t; i <= b; i++) mat[i][r] = num++; // top to bottom.
+            r--;
+            for(int i = r; i >= l; i--) mat[b][i] = num++; // right to left.
+            b--;
+            for(int i = b; i >= t; i--) mat[i][l] = num++; // bottom to top.
+            l++;
+        }
+        return mat;
+    }
+}
+```
+
+```Python []
+class Solution:
+    def generateMatrix(self, n: int) -> [[int]]:
+        l, r, t, b = 0, n - 1, 0, n - 1
+        mat = [[0 for _ in range(n)] for _ in range(n)]
+        num, tar = 1, n * n
+        while num <= tar:
+            for i in range(l, r + 1): # left to right
+                mat[t][i] = num
+                num += 1
+            t += 1
+            for i in range(t, b + 1): # top to bottom
+                mat[i][r] = num
+                num += 1
+            r -= 1
+            for i in range(r, l - 1, -1): # right to left
+                mat[b][i] = num
+                num += 1
+            b -= 1
+            for i in range(b, t - 1, -1): # bottom to top
+                mat[i][l] = num
+                num += 1
+            l += 1
+        return mat
+```
 
 ---
 
 ### 62. Unique Paths
-> 
->> 标签：动态规划，数组
+
+> 标签：动态规划，数组
 
 ---
 
-- 设 `m×n` 方格有 `f(m,n)` 个不同解，则先让机器人向右走一步 or 向左走一步，可以推出 `f(m,n) = f(m-1,n) + f(m,n-1)`。
-- 创建 `m+1×n+1` 的矩阵，根据以上规则计算对角线方格的值：
+- 设 `m×n` 方格有 `f(m,n)` 个不同解，则先让机器人向上走一步 or 向左走一步，可以推出 `f(m,n) = f(m-1,n) + f(m,n-1)`。
+- 创建 `m+1 × n+1` 的矩阵，根据以上规则计算对角线方格的值：
   - 要加一行一列，是为了解决`f(0,0) = f(-1,0) + f(0,-1)`出现的边界问题；
-  - 将 'f(0,1)'置`1`是为了给迭代启动值（ `m×n` 地图第一行和第一列值都应为1）。
-- 时间复杂度`O(MN)`，空间复杂度`O(MN)`。
+  - 将`f(0,1)`置 $1$ 是为了给迭代启动值（ `m×n` 地图第一行和第一列值都应为1）。
+- 时间复杂度 $O(MN)$ ，空间复杂度 $O(MN)$ 。
 
 ```Python []
 class Solution:
@@ -845,6 +1352,7 @@ class Solution:
                 matrix[i][j] = matrix[i-1][j] + matrix[i][j-1]
         return matrix[-1][-1]
 ```
+
 ```Java []
 class Solution {
     public int uniquePaths(int m, int n) {
@@ -863,14 +1371,13 @@ class Solution {
 ---
 
 ### 63. Unique Paths II
-> 
->> 标签：动态规划，数组
+
+> 标签：动态规划，数组
 
 ---
 
 - 和`62题`动态规划思路类似，不同的是，需要对障碍物做处理：`f(m,n) = f(m-1,n)+f(m,n-1)` if `map(m)(n) != 1` else `f(m,n) = 0`；
 - 此处理的含义是`f(m,n)`对`f(m+1,n)`和`f(m,n+1)`的贡献归零，这样就可以把所有经过障碍物的路线排除掉。
-
 
 ```python []
 class Solution:
@@ -884,6 +1391,7 @@ class Solution:
                     if obstacleGrid[i-1][j-1] != 1 else 0
         return matrix[-1][-1]
 ```
+
 ```java []
 class Solution {
     public int uniquePathsWithObstacles(int[][] obstacleGrid) {
@@ -903,8 +1411,8 @@ class Solution {
 ---
 
 ### 65. Valid Number
-> 
->> 标签：自动机，哈希表Hash
+
+> 标签：自动机，哈希表Hash
 
 ---
 
@@ -944,8 +1452,8 @@ class Solution:
 ---
 
 ### 66. Plus One
-> 
->> 标签：
+
+> 标签：
 
 ---
 
@@ -964,6 +1472,7 @@ class Solution:
         digits.append(0)
         return digits
 ```
+
 ```java []
 class Solution {
     public int[] plusOne(int[] digits) {
@@ -984,17 +1493,16 @@ class Solution {
 ---
 
 ### 70. Climbing Stairs
-> 
->> 标签：动态规划
+
+> 标签：动态规划
 
 ---
 
-- 设爬 `n `个台阶有 `f(n)` 种可能：
-  - 假设先爬`1`阶，剩下` n-1` 阶有` f(n-1)` 种可能；
-  - 假设先爬`2`阶，剩下 `n-2 `阶有 `f(n-2)` 种可能，
+- 设爬 `n` 个台阶有 `f(n)` 种可能：
+  - 假设先爬`1`阶，剩下 `n-1` 阶有 `f(n-1)` 种可能；
+  - 假设先爬`2`阶，剩下 `n-2` 阶有 `f(n-2)` 种可能，
   - 因此爬`n`阶可以转化为两种爬`n-1`阶问题之和：`f(n) = f(n-1) + f(n-2)`；
 - 不难看出，这就是`斐波那契数列`公式，此题可转化为求斐波那契数列第`n`项。
-
 
 ```Python []
 class Solution:
@@ -1004,6 +1512,7 @@ class Solution:
             a, b = a + b, a
         return a
 ```
+
 ```Java []
 class Solution {
     public int climbStairs(int n) {
@@ -1018,11 +1527,134 @@ class Solution {
 }
 ```
 
+### 72. Edit Distance
+
+> 标签：动态规划
+
+---
+
+#### 思路:
+
+- 典型动态规划题：
+    - 状态的定义：将`word1`前`i`个字符转化为`word2`前`j`个字符最少需要`dp[i][j]`步；
+    - 状态转移方程：
+        - 若当前两字符相等`word1[i] == word2[j]`，则易得最小步数不变`dp[i][j] = dp[i-1][j-1]`；
+        - 否则，最小步数为**增删改的步数1 + 增删改后对应的最小步数**，即`dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])`，具体有3种情况：
+            - `dp[i-1][j]` + 删除`word1[i]`操作；（删除`word1[i]`后就从`dp[i][j]`转化为了`dp[i-1][j]`，以下同理）
+            - `dp[i][j-1]` + 在`word1[i]`后添加`word2[j]`操作；
+            - `dp[i-1][j-1]` + 将`word1[i]`修改为`word2[j]`操作。
+    - 返回`dp[-1][-1]`，即为最少步数。
+- 时空间复杂度均为 $O(MN)$。
+
+#### 代码：
+
+```python []
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        dp = [[0 for _ in range(len(word2) + 1)] for _ in range(len(word1) + 1)]
+        for i in range(1, len(dp)): dp[i][0] = i
+        for i in range(1, len(dp[0])): dp[0][i] = i
+        for i in range(1, len(dp)):
+            for j in range(1, len(dp[0])):
+                dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) if word1[i-1] != word2[j-1] else dp[i-1][j-1]
+        return dp[-1][-1]
+```
+
+```java []
+class Solution {
+    public int minDistance(String word1, String word2) {
+        int[][] dp = new int[word1.length() + 1][word2.length() + 1];
+        for(int i = 1; i < dp.length; i++) dp[i][0] = i;
+        for(int i = 1; i < dp[0].length; i++) dp[0][i] = i;
+        for(int i = 1; i < dp.length; i++) {
+            for(int j = 1; j < dp[0].length; j++) {
+                dp[i][j] = word1.charAt(i - 1) != word2.charAt(j - 1) ? 
+                1 + Math.min(dp[i-1][j-1], Math.min(dp[i-1][j], dp[i][j-1])) : dp[i-1][j-1];
+            }
+        }
+        return dp[word1.length()][word2.length()];
+     }
+}
+```
+
+---
+
+### 78. Subsets
+
+> 标签：回溯法
+
+---
+
+#### 回溯法:
+
+- 从空子集开始，遍历 $[j ,nums]$ 并迭代，添加每个分支。
+
+```python []
+class Solution(object):
+    def subsets(self, nums):
+        res = []
+        def children(j, tmp):
+            res.append(tmp)
+            for i in range(j, len(nums)):
+                children(i + 1, tmp + [nums[i]])
+        children(0, [])
+        return res
+```
+
+```java []
+class Solution {
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        children(nums, 0, res, new ArrayList<>());
+        return res;
+    }
+    private void children(int[] nums, int j, List<List<Integer>> res, List<Integer> tmp) {
+        res.add(new ArrayList<>(tmp));
+        for(int i = j; i < nums.length; i++){
+            tmp.add(nums[i]);
+            children(nums, i + 1, res, tmp);
+            tmp.remove(tmp.size() - 1);
+        }
+    }
+}
+```
+
+#### 迭代法：
+
+- 对于集合 $nums$ 的所有组合 $res$ ，若向 $nums$ 中添加数字 $n$ ，则新组合等于$res ∪ (res + n)$。其中 $res + n$ 为给 $res$ 中所有组合尾部添加数字$n$。
+
+```python []
+class Solution:
+    def subsets(self, nums: [int]) -> [[int]]:
+        res = [[]]
+        for i in nums:
+            res = res + [num + [i] for num in res]
+        return res
+```
+
+``` java []
+class Solution {
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        res.add(new ArrayList<Integer>());
+        for(int num : nums){
+            int size = res.size();
+            for(int i = 0; i < size; i++) {
+                List<Integer> tmp = new ArrayList<>(res.get(i));
+                tmp.add(num);
+                res.add(tmp);
+            }
+        }
+        return res;
+    }
+}
+```
+
 ---
 
 ### 98. Validate Binary Search Tree
-> 
->> 标签：二叉搜索树BST,中序遍历
+
+> 标签：二叉搜索树BST,中序遍历
 
 ---
 
@@ -1042,6 +1674,7 @@ class Solution:
         if not self.isValidBST(root.right): return False
         return True
 ```
+
 ```java []
 class Solution {
     long tmp = Long.MIN_VALUE;

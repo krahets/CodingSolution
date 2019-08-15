@@ -22,6 +22,5 @@ class Solution:
                     while i < j and nums[j] == nums[j + 1]: j -= 1
         return res
 
-
 s = Solution()
-print(s.threeSum([-2, 0, 0, 2, 2]))
+print(s.threeSum([-4,-1,-1,-1,0,1,2]))
