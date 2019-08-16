@@ -1115,8 +1115,8 @@ class Solution:
 
 - 将第`j`个数字与第`j`,`j+1`,`j+2`,...,`len(nums) - 1`个数字分别交换，得到`len(nums) - j`种情况；
 - 在每种情况下递归，将第`j+1`处数字与第`j+1`,`j+2`,...,`len(nums) - 1`处数字分别交换；
-    - 每个递归跳出后，要将交换过的元素还原，这样才能实现第一条所说的内容。
-    - 直到`j == len(nums) - 1`，代表此种交换组合下已经交换完毕，记录答案。
+  - 每个递归跳出后，要将交换过的元素还原，这样才能实现第一条所说的内容。
+  - 直到`j == len(nums) - 1`，代表此种交换组合下已经交换完毕，记录答案。
 
 ```python []
 class Solution:
@@ -1652,6 +1652,98 @@ class Solution {
 
 ---
 
+### 88. Merge Sorted Array
+
+> 标签：数组、双指针
+
+---
+
+- 题目关于合并两个数组，我们自然想到双指针，通过比较两指针当前元素大小添加至新数组，完成数组合并，复杂度`O(M+N)`。
+- 本题目要求将`nums2`合并至`nums1`，即需要考虑在合并过程中，不能影响`nums1`指针未到达元素（如果从数组头部开始，一直向前修改`nums1`的值，但`num1`的指针还未到达那些值，则会造成`nums1`值的丢失）。
+- 因此，考虑设置两指针`i` `j`分别从`nums1` `nums2`数字尾部开始，修改点`tail`从`nums[m + n - 1]`即整个尾部开始修改。这样就解决了`nums1`元素丢失的问题（因为一定有`tail >= i`）。
+- 第一轮循环合并完后，由于可能`nums2`指针未走完，需要将`nums2`剩余首部覆盖至`nums1`首部。`nums1`指针未走完不需要做任何多余操作，因为覆盖前后相同。
+
+```python []
+class Solution:
+    def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -> None:
+        tail, i, j = m + n - 1, m - 1, n - 1
+        while i >= 0 and j >= 0:
+            if nums1[i] > nums2[j]:
+                nums1[tail] = nums1[i]
+                i -= 1
+            else:
+                nums1[tail] = nums2[j]
+                j -= 1
+            tail -= 1
+        for k in range(j, -1, -1): nums1[k] = nums2[k]
+```
+
+```java []
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        int tail = m + n - 1, i = m - 1, j = n - 1;
+        while (i >= 0 && j >= 0) {
+            if (nums1[i] > nums2[j]) nums1[tail] = nums1[i--];
+            else nums1[tail] = nums2[j--];
+            tail--;
+        }
+        for(int k = j; k >= 0; k--) nums1[k] = nums2[k];
+    }
+}
+```
+
+---
+
+### 89. Gray Code
+
+> 标签：
+
+---
+
+#### 思路：
+
+- 设 $n$ 阶格雷码集合为 $G(n)$，则 $G(n+1)$ 阶格雷码为：
+    - 给 $G(n)$ 阶格雷码每个元素二进制形式前面添加 $0$，得到 $G'(n)$；
+    - 设 $G(n)$ 集合倒序（镜像）为 $R(n)$，给 $R(n)$ 每个元素二进制形式前面添加 $1$，得到 $R'(n)$；
+    - $G(n+1) = G'(n) ∪ R'(n)$ 拼接两个集合即可得到下一阶格雷码。
+- 根据以上规律，可从 $0$ 阶格雷码推导致任何阶格雷码。
+- 代码解析：
+    - 由于最高位前默认为 $0$，因此 $G'(n) = G(n)$，只需在 `res`(即 $G(n)$ )后添加 $R'(n)$ 即可；
+    - 计算 $R'(n)$：执行 `head = 1 << i` 计算出对应位数，以给 $R(n)$ 前添加 $1$ 得到对应 $R'(n)$；
+    - 倒序遍历 `res`(即 $G(n)$ )：依次求得 $R'(n)$ 各元素添加至 `res` 尾端，遍历完成后 `res`(即 $G(n+1)$)。
+
+<![Picture1.png](https://pic.leetcode-cn.com/6c8d62ea7150ece8ed135e6d29bc614eb4022d136b08f3640132fb66e40694c4-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/e3dcfa34510e7625bfa170388389b14e7fc79e21486db077aac41acf044133f8-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/d0df7e038c396acf7c5283e8080963ecefe2ab37d4b607982eb3e40b1e5ee03b-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/28acf6d5b1fae0fb2dddbedd7ac92ffeee8902cd28233bdfb08b52af411a9bb2-Picture4.png)>
+
+#### 代码：
+
+```Python []
+class Solution:
+    def grayCode(self, n: int) -> List[int]:
+        res, head = [0], 1
+        for i in range(n):
+            for j in range(len(res) - 1, -1, -1):
+                res.append(head + res[j])
+            head <<= 1
+        return res
+```
+
+```Java []
+class Solution {
+    public List<Integer> grayCode(int n) {
+        List<Integer> res = new ArrayList<Integer>() {{ add(0); }};
+        int head = 1;
+        for (int i = 0; i < n; i++) {
+            for (int j = res.size() - 1; j >= 0; j--)
+                res.add(head + res.get(j));
+            head <<= 1;
+        }
+        return res;
+    }
+}
+```
+
+---
+
 ### 98. Validate Binary Search Tree
 
 > 标签：二叉搜索树BST,中序遍历
@@ -1693,9 +1785,109 @@ class Solution {
 
 ---
 
+### 101. Symmetric Tree
+
+> 标签：深度优先搜索DFS
+
+---
+
+- 构建一个match函数，通过深度优先遍历DFS判断是否为对称二叉树，思路是在遍历过程中，每次对比当前点与对称点的值是否相等。
+    - **参数：** 
+        - 节点`l`节点`r`，每轮递归比较两节点值是否相等`l.val == r.val`；
+    - **返回值：**
+        - 节点`l`和`r`值是否相等 且
+        - 节点`l`的左子树和节点`r`右子树是否对称 且 
+        - 节点`l`的右子树和节点`r`左子树是否对称
+    - **终止条件：**
+        - 节点`l`和`r`同时为`null`则返回true，代表同时越过叶子节点，以上全部值相同；
+        - 节点`l`和`r`有一个为`null`则返回false，代表只有一边越过叶子节点，意味着树不对称。
+
+```python []
+class Solution:
+    def isSymmetric(self, root: TreeNode) -> bool:
+        def match(l, r):
+            if not l and not r: return True
+            if not l or not r: return False
+            return l.val == r.val and \
+                match(l.left, r.right) and \
+                match(l.right, r.left)
+        return match(root, root)
+```
+
+```java []
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return match(root, root);
+    }
+    private boolean match(TreeNode l, TreeNode r) {
+        if (l == null && r == null) return true;
+        if (l == null || r == null) return false;
+        return l.val == r.val && 
+            match(l.left, r.right) && 
+            match(l.right, r.left);
+    }
+}
+```
+
+---
+
+### 102. Binary Tree Level Order Traversal
+
+> 标签：广度优先搜索BFS
+
+---
+
+- `cur`存储当前层节点，遍历`cur`并执行:
+    - 统计`cur`每个节点值保存至`tmp`中；
+    - 统计`cur`中每个节点的左右非空节点，保存至`nex`中；
+- 遍历`cur`完成后，将当前层值`tmp`添加进`res`中；并且`cur = nex`将当前层切换至下一层，继续迭代。
+- 最终返回`res`即可。
+- 时间空间复杂度均为 $O(N)$。
+
+```python []
+class Solution:
+    def levelOrder(self, root: TreeNode) -> List[List[int]]:
+        if not root: return []
+        cur, nex, tmp, res = [root], [], [], []
+        while cur:
+            for r in cur:
+                tmp.append(r.val)
+                if r.left: nex.append(r.left)
+                if r.right: nex.append(r.right)
+            res.append(tmp[:])
+            cur, nex, tmp = nex, [], []
+        return res
+```
+
+```java []
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        if(root == null) return new ArrayList<>();
+        List<TreeNode> cur = new ArrayList<>(), nex = new ArrayList<>();
+        cur.add(root);
+        List<List<Integer>> res = new ArrayList<>();
+        List<Integer> tmp = new ArrayList<>();
+        while(cur.size() > 0){
+            for(TreeNode r : cur) {
+                tmp.add(r.val);
+                if(r.left != null) nex.add(r.left);
+                if(r.right != null) nex.add(r.right);
+            }
+            res.add(tmp);
+            cur = nex;
+            tmp = new ArrayList<>();
+            nex = new ArrayList<>();
+        }
+        return res;
+    }
+}
+```
+
+---
+
 ### 104. Maximum Depth of Binary Tree
-> 
->> 标签：递归、深度优先搜索DFS
+
+> 标签：递归、深度优先搜索DFS
 
 ---
 
@@ -1708,6 +1900,7 @@ class Solution:
         if not root: return 0
         return max(self.maxDepth(root.left), self.maxDepth(root.right)) + 1
 ```
+
 ```java []
 class Solution {
     public int maxDepth(TreeNode root) {
@@ -1719,9 +1912,54 @@ class Solution {
 
 ---
 
+### 105. Construct Binary Tree from Preorder and Inorder Traversal
+
+> 标签：
+
+---
+
+- 前序遍历和中序遍历有以下特点：
+    - **前序遍历：** 根节点 | 左子树 | 右子树 ； 例如：`[1 | 2 4 5 | 3 6 7]`
+    - **中序遍历：** 左子树 | 根节点 | 右子树 ； 例如：`[4 2 5 | 1 | 6 3 7]`
+    - 对于每个左子树、右子树的前序遍历和中序遍历依然有此规律。
+- **思路：** 
+    - 按前序遍历的顺序每次pop并建立节点`root`，在中序遍历中找到`root`的对应index，划分出哪些节点构成此节点的左子树`inorder[:i]`，哪些构成右子树`inorder[i+1:]`。
+    - **返回值：** 递归构建完当前节点`root`左右子树后，返回`root`，作为上轮递归父节点的`left`或`right`。
+    - **终止条件：** 当`inorder[:i]`中序遍历无剩余元素时，说明当前`root`已经越过叶子节点，直接返回`None`。
+
+```python []
+class Solution:
+    def buildTree(self, preorder: [int], inorder: [int]) -> TreeNode:
+        if not inorder: return
+        root = TreeNode(preorder.pop(0))
+        i = inorder.index(root.val)
+        root.left = self.buildTree(preorder, inorder[:i])
+        root.right = self.buildTree(preorder, inorder[i+1:])
+        return root
+```
+
+```java []
+class Solution {
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        return build(preorder, 0, inorder, 0, inorder.length);
+    }
+    private TreeNode build(int[] preorder, int p, int[] inorder, int i, int j){
+        if(i >= j) return null;
+        TreeNode root = new TreeNode(preorder[p]);
+        int k = 0;
+        while(inorder[k] != root.val) k++;
+        root.left = build(preorder, p + 1, inorder, i, k);
+        root.right = build(preorder, p + 1 + k - i, inorder, k + 1, j);
+        return root;
+    }
+}
+```
+
+---
+
 ### 108. Convert Sorted Array to Binary Search Tree
-> 
->> 标签：平衡二叉树BBT，二叉搜索树BST
+
+> 标签：平衡二叉树BBT，二叉搜索树BST
 
 ---
 
@@ -1729,7 +1967,6 @@ class Solution {
   - `平衡二叉树`：对于每个根节点，`左右子树高度差 <= 1`；
   - `二叉搜索树`：对于每个节点，其`左子树值<此节点值`，`右子树>此节点值`。
 - 要满足以上两个特点，我们自然想到以`array中点值`作为根节点值，并递归重建，这样就可以同时保证以上两个条件。
-
 
 ```python []
 class Solution:
@@ -1741,6 +1978,7 @@ class Solution:
         root.right = self.sortedArrayToBST(nums[mid+1:])
         return root
 ```
+
 ```java []
 class Solution {
     public TreeNode sortedArrayToBST(int[] nums) {
@@ -1761,8 +1999,8 @@ class Solution {
 ---
 
 ### 109. Convert Sorted List to Binary Search Tree
-> 
->> 标签：二叉搜索树BST，深度优先搜索DFS，回溯法
+
+> 标签：二叉搜索树BST，深度优先搜索DFS，回溯法
 
 ---
 
@@ -1771,7 +2009,6 @@ class Solution {
 - 我们考虑是否可以让建立节点的顺序匹配链表元素顺序？这样每次建立节点时，只需要获取链表下一个元素即可。
 - 使用递归模拟`中序遍历`过程，建立节点的顺序即与链表元素顺序一一对应，`bottom-up`建立树，最终返回根节点。
 - 递归前需要统计链表长度`n`，整体算法复杂度`O(N)`。
-
 
 ```python []
 class Solution:
@@ -1793,6 +2030,7 @@ class Solution:
         father.right = self.to_bst(m + 1, right)
         return father
 ```
+
 ```java []
 class Solution {
     private ListNode node;
@@ -1821,14 +2059,20 @@ class Solution {
 ---
 
 ### 110. Balanced Binary Tree
-> 
->> 标签：平衡二叉树BBT，递归
+
+> 标签：平衡二叉树BBT，递归
 
 ---
 
-#### Bottom-up 提前阻断法（复杂度 `O(N)`）
+#### 从底至顶（提前阻断法）
 
-- 在对`root`做`dfs`时，会从下至上获得每个`root`的左右子树高度，当我们发现有一例`左右子树高度差 ＞1`的情况时`return -1`，代表此树不是平衡树，后面的高度计算都没有意义了，之后一路`return -1`，不再做后面的`DFS`。
+- 对二叉树做深度优先遍历DFS，递归过程中：
+    - 终止条件：当DFS越过叶子节点时，返回高度`0`；
+    - 返回值：
+        - 从底至顶，返回以每个节点`root`为根节点的子树最大高度(左右子树中最大的高度值加1`max(left,right) + 1`)；
+        - 当我们发现有一例 `左/右子树高度差 ＞ 1` 的情况时，代表此树不是平衡树，返回`-1`；
+    - 当发现不是平衡树时，后面的高度计算都没有意义了，因此一路返回`-1`，避免后续多余计算。
+- 最差情况是对树做一遍完整DFS，时间复杂度为 `O(N)`。
 
 ```Python []
 class Solution:
@@ -1841,8 +2085,9 @@ class Solution:
         if left == -1: return -1
         right = self.depth(root.right)
         if right == -1: return -1
-        return max(left,right) + 1 if abs(left - right) < 2 else -1
+        return max(left, right) + 1 if abs(left - right) < 2 else -1
 ```
+
 ```Java []
 class Solution {
     public boolean isBalanced(TreeNode root) {
@@ -1860,12 +2105,13 @@ class Solution {
 }
 ```
 
-#### Brute force 暴力法（复杂度`O(N^2`）
+#### 从顶至底（暴力法）
 
-- 构造一个获取当前节点最大深度的方法 `depth()`，通过比较左右子树最大深度差来判断是否是二叉平衡树；
-- 以每个节点为根节点，递归判断，所有节点满足平衡二叉树性质则返回 `True`；
-- 本方法在计算节点深度时产生大量重复计算，时间复杂度 `O(N^2)`。
-
+- 构造一个获取当前节点最大深度的方法 `depth()` ，通过比较左右子树最大高度差`abs(self.depth(root.left) - self.depth(root.right))`，来判断以此节点为根节点下是否是二叉平衡树；
+- 从顶至底DFS，以每个节点为根节点，递归判断是否是平衡二叉树：
+    - 若所有根节点都满足平衡二叉树性质，则返回 `True` ；
+    - 若其中任何一个节点作为根节点时，不满足平衡二叉树性质，则返回`False`。
+- 本方法产生大量重复的节点访问和计算，最差情况下时间复杂度 `O(N^2)`。
 
 ```Python []
 class Solution:
@@ -1878,6 +2124,7 @@ class Solution:
         if not root: return 0
         return max(self.depth(root.left), self.depth(root.right)) + 1
 ```
+
 ```Java []
 class Solution {
     public boolean isBalanced(TreeNode root) {
@@ -1895,8 +2142,8 @@ class Solution {
 ---
 
 ### 111. Minimum Depth of Binary Tree
-> 
->> 标签：二叉树，递归
+
+> 标签：二叉树，递归
 
 ---
 
@@ -1904,7 +2151,6 @@ class Solution {
   - 当前节点`左右子树`有一个为空时，返回的应是`非空子树`的最小深度，而不是`空子树`深度0；若返回0相当于把当前节点认为成`叶子节点`，与此节点有`非空子树`矛盾。
   - 当`左右子树`都不为空时，和`maximum depth`题一样，返回左右子树深度的最小值。
   - 当`左右子树`都为空时，只有1个根节点深度为1（根节点与叶子节点重合）。
-
 
 ```python []
 class Solution:
@@ -1914,6 +2160,7 @@ class Solution:
         if not root.right: return self.minDepth(root.left) + 1
         return min(self.minDepth(root.left), self.minDepth(root.right)) + 1
 ```
+
 ```java []
 class Solution {
     public int minDepth(TreeNode root) {
@@ -1927,9 +2174,133 @@ class Solution {
 
 ---
 
+### 114. Flatten Binary Tree to Linked List
+
+> 标签：二叉树，递归
+
+---
+
+#### 题解思路：
+
+- 根据题目样例，可以看出生成链表的节点顺序为树前序遍历的顺序。因此，我们思路是对树执行前序遍历，并修改每个节点的指针指向。
+- 我们使用递归方法前序遍历，其中：
+    - 终止条件：越过叶子节点，即`root == null`，直接返回；
+    - 指针修改：
+        - 用一个全局变量`pre`保存上一个节点：将`pre`右子树指针指向当前节点`root`；将`pre`左子树指针清空。
+        - 进入下轮递归前，将当前节点`root`赋给`pre`；
+        - 由于在`self.flatten(root.left)`方法执行后执行`flatten(root.right)`，但`root.right`指向节点可能已经改变，造成错误的递归顺序，因此需要在执行此方法前存储`root.right`至`right`变量，用此变量做每个节点的右子树递归。
+- 本题无需返回值，时空间复杂度均为`O(N)`。
+
+#### Python and Java Code:
+
+```python []
+class Solution:
+    def __init__(self):
+        self.pre = None
+    def flatten(self, root: TreeNode) -> None:
+        if not root: return
+        if self.pre: self.pre.right, self.pre.left = root, None
+        self.pre = root
+        right = root.right
+        self.flatten(root.left)
+        self.flatten(right)
+```
+
+```java []
+class Solution {
+    private TreeNode pre;
+    public void flatten(TreeNode root) {
+        if(root == null) return;
+        if(pre != null){
+            pre.right = root;
+            pre.left = null;
+        }
+        pre = root;
+        TreeNode right = root.right;
+        flatten(root.left);
+        flatten(right);
+    }
+}
+```
+
+---
+
+### 121. Best Time to Buy and Sell Stock
+
+> 标签：
+
+---
+
+- 题意要求先买在卖，找到利润最大的卖卖方案。
+- 按时间顺序，从前到后遍历股票价格数组`prices`，每次迭代做两件事：
+    - 统计直至目前的最低成本`cost`，因为今日卖出的利润等于今日`price`减去前几日的`price`最小值（即最小成本）；
+    - 计算直至目前的最高利润`profit` 。
+- 最终，返回最高利润`profit`。
+
+```python []
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        cost, profit = float("+inf"), 0
+        for price in prices:
+            cost = min(price, cost)
+            profit = max(price - cost, profit)
+        return profit
+```
+
+```java []
+class Solution {
+    public int maxProfit(int[] prices) {
+        int profit = 0, cost = Integer.MAX_VALUE;
+        for (int price : prices) {
+            cost = Math.min(cost, price);
+            profit = Math.max(profit, price - cost);
+        }
+        return profit;
+    }
+}
+```
+
+---
+
+### 122. Best Time to Buy and Sell Stock II
+
+> 标签：
+
+---
+
+- 考虑买股票的策略：设今天价格`p1`，明天价格`p2`，若`p1 < p2`则今天买入明天卖出，赚取`p2 - p1`；
+    - 若遇到价格连续上涨的交易日，第一天买最后一天卖收益最大，等价于每天买卖（因为没有交易手续费）；
+    - 若遇到价格连续下降的交易日，不买卖，因此永远不会亏钱。
+- 赚到了所有交易日的钱，所有亏钱的交易日都未交易，理所当然会利益最大化。
+
+```python []
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        profit = 0
+        for i in range(1, len(prices)):
+            tmp = prices[i] - prices[i - 1]
+            if tmp > 0: profit += tmp
+        return profit
+```
+
+```java []
+class Solution {
+    public int maxProfit(int[] prices) {
+        int profit = 0;
+        for (int i = 1; i < prices.length; i++) {
+            int tmp = prices[i] - prices[i - 1];
+            if (tmp > 0) profit += tmp;
+        }
+        return profit;
+    }
+}
+```
+
+---
+
 ### 124. Binary Tree Maximum Path Sum
-> 
->> 标签：二叉树，递归
+
+> 标签：二叉树，递归
 
 ---
 
@@ -1944,7 +2315,6 @@ class Solution {
   - 递归终止条件：越过叶子节点，返回`0`；
   - 记录最大值：当前节点`最大值 = root.val + left + right`。
 - 最终返回所有路径中的全局最大值即可。
-  
 
 ```python []
 class Solution:
@@ -1952,7 +2322,6 @@ class Solution:
         self.max = float('-inf')
         self.max_path(root)
         return self.max
-        
     def max_path(self, root):
         if not root: return 0
         left = self.max_path(root.left)
@@ -1961,6 +2330,7 @@ class Solution:
         tmp = max(left, right) + root.val
         return tmp if tmp > 0 else 0
 ```
+
 ```java []
 class Solution {
     private int max = Integer.MIN_VALUE;
@@ -1982,8 +2352,8 @@ class Solution {
 ---
 
 ### 125. Valid Palindrome
-> 
->> 标签：字符串，双指针
+
+> 标签：字符串，双指针
 
 ---
 
@@ -1999,17 +2369,17 @@ class Solution:
         case = abs(ord('a') - ord('A'))
         while left < right:
             while left < right and self.not_letters_digits(s[left]): left += 1
-            while left < right and self.not_letters_digits(s[right]): right -= 1 
+            while left < right and self.not_letters_digits(s[right]): right -= 1
             s_l = ord(s[left]) - case if s[left] >= 'a' else ord(s[left])
             s_r = ord(s[right]) - case if s[right] >= 'a' else ord(s[right])
             if s_l != s_r: return False
             left += 1
             right -= 1
         return True
-    
     def not_letters_digits(self, c):
         return not 'A' <= c <= 'Z' and not 'a' <= c <= 'z' and not '0' <= c <= '9'
 ```
+
 ```java []
 class Solution {
     public boolean isPalindrome(String s) {
@@ -2028,8 +2398,8 @@ class Solution {
 ---
 
 ### 133. Clone Graph
-> 
->> 标签：图，深度优先遍历DFS
+
+> 标签：图，深度优先遍历DFS
 
 ---
 
@@ -2053,12 +2423,13 @@ class Solution:
                 copy.neighbors.append(self.dfs(nei)) 
         return self.dic[node] # return the node 'copy'.
 ```
+
 ```java []
 class Solution {
     private Map<Node, Node> map;
     public Node cloneGraph(Node node) {
         map = new HashMap<>();
-        return dfs(node);        
+        return dfs(node);
     }
     private Node dfs(Node node) {
         if(!map.containsKey(node)){
@@ -2076,8 +2447,8 @@ class Solution {
 ---
 
 ### 136. Single Number
-> 
->> 标签：数组，位运算
+
+> 标签：数组，位运算
 
 ---
 
