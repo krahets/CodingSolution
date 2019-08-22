@@ -2409,7 +2409,6 @@ class Solution {
   - `key = node`，`value = copy`
 - `终止条件：`每次dfs首先判断HashMap中是否已经存在此`node`节点，若存在则直接return此HashMap中的`copy`节点。
 
-
 ```python []
 class Solution:
     def cloneGraph(self, node: 'Node') -> 'Node':
@@ -2420,7 +2419,7 @@ class Solution:
         if node not in self.dic:
             self.dic[node] = copy = Node(node.val, []) # get copy of the node 'node' and add it into the dictionary.
             for nei in node.neighbors: # recursive: get the neighbors of the node 'copy'.
-                copy.neighbors.append(self.dfs(nei)) 
+                copy.neighbors.append(self.dfs(nei))
         return self.dic[node] # return the node 'copy'.
 ```
 
@@ -2440,6 +2439,55 @@ class Solution {
             }
         }
         return map.get(node);
+    }
+}
+```
+
+---
+
+### 135. Candy
+
+> 标签：贪心算法
+
+---
+
+- 先从左至右遍历一遍学生，按照以下规则给糖：
+    - 先给所有小朋友1颗糖；
+    - 若第`i`名学生比`i - 1`名学生分数高，则第`i`名学生糖应比第`i - 1`名学生多一个。
+- 在此规则下，可以保证所有学生左边学生的糖数量符合规则。
+    - 同理，从右至左遍历一遍学生，保证所有学生右边学生的糖数量符合规则。
+- 最终，取两遍遍历对应学生糖果数最大值（这样对于每个学生，左右学生糖果数量都满足），即可得最少糖果数量。
+- 时间空间复杂度都为 $O(N)$。
+
+```python []
+class Solution:
+    def candy(self, ratings: List[int]) -> int:
+        left = [1 for _ in range(len(ratings))]
+        right = left[:]
+        for i in range(1, len(ratings)):
+            if ratings[i] > ratings[i - 1]: left[i] = left[i - 1] + 1
+        count = left[-1]
+        for i in range(len(ratings) - 2, -1, -1):
+            if ratings[i] > ratings[i + 1]: right[i] = right[i + 1] + 1
+            count += max(left[i], right[i])
+        return count
+```
+
+```java []
+class Solution {
+    public int candy(int[] ratings) {
+        int[] left = new int[ratings.length];
+        int[] right = new int[ratings.length];
+        Arrays.fill(left, 1);
+        Arrays.fill(right, 1);
+        for(int i = 1; i < ratings.length; i++)
+            if(ratings[i] > ratings[i - 1]) left[i] = left[i - 1] + 1;
+        int count = left[ratings.length - 1];
+        for(int i = ratings.length - 2; i >= 0; i--) {
+            if(ratings[i] > ratings[i + 1]) right[i] = right[i + 1] + 1;
+            count += Math.max(left[i], right[i]);
+        }
+        return count;
     }
 }
 ```
@@ -2469,6 +2517,7 @@ class Solution:
             res ^= num
         return res
 ```
+
 ```java []
 class Solution {
     public int singleNumber(int[] nums) {
@@ -2484,32 +2533,40 @@ class Solution {
 ---
 
 ### 137. Single Number II
-> 
->> 标签：数组，位运算
+
+> 标签：数组，位运算
 
 ---
 
-- 这道题是`136题`拓展，`136题`中我们用到了`异或运算`，其实异或运算的另一个含义是“二进制下不考虑进位的加法”：0+0 = 0， 1+1=0……
-- 我们联想到，是否可以通过某种运算`$`，使`a $ a $ a` = 0，`0 $ a = a`，即创建“三进制下不考虑进位的加法”，这样将整个`arr`遍历加和，留下来的就是那个只出现一次的数字（其余各位都出现了`3x`次，一定为`0`）。
-- 看到下面一堆与、或、非、异或运算应该很懵吧……下面一条条分析：
-  - `ones`记录至目前元素，各位元素出现`1`次的位置；
-  - `twos`记录至目前元素，各位元素出现`2`次的位置；
-  - `threes`记录至目前元素，各位元素出现`3`次的位置
-每轮完成时，当`threes`里某位为`1`时（代表此位出现了3次），需要将`ones` `twos`的对应位清零。
+#### 解题思路：
 
-```python []
+- **二进制下不考虑进位的加法**：本题为 [136. Single Number](https://leetcode-cn.com/problems/single-number/solution/single-number-xor-by-jin407891080/) 的拓展，136 题中我们用到了异或运算。实际上，异或运算的含义是二进制下不考虑进位的加法，即：$0 xor 0=0+0=0$, $0 xor 1=0+1=1$, $1 xor 0=1+0=1$, $1 xor 1=1+1=0$（不进位）。
+- **三进制下不考虑进位的加法**：通过定义某种运算 $#$ ，使得 $0 # 1 = 1$, $1 # 1 = 2$, $2 # 1 = 0$。在此运算规则下，出现了 $3$ 次的数字的二进制所有位全部抵消为 $0$ ，而留下只出现 $1$ 次的数字二进制对应位为 $1$ 。因此，在此运算规则下将整个`arr`中数字遍历加和，留下来的结果则为只出现 $1$ 次的数字。
+- **代码分析：** 请结合代码注释和图表理解。
+  - `ones ^= num`：记录至目前元素`num`，二进制某位出现 $1$ 次（当某位出现 $3$ 次时有 $ones = 1$ ，与 $twos = 1$ 共同表示“出现 $3$ 次”）；
+  - `twos |= ones & num`：记录至目前元素`num`，二进制某位出现 $2$ 次 （当某位出现 $2$ 次时，$twos = 1$ 且 $ones = 0$ ）；
+  - `threes = ones & twos`：记录至目前元素`num`，二进制某位出现 $3$ 次（即当 $ones$ 和 $twos$ 对应位同时为 $1$ 时 $three = 1$ ）。
+  - `one &= ~threes`, `two &= ~threes`：将 $ones$, $twos$ 中出现了 $3$ 次的对应位清零，实现 “不考虑进位的三进制加法” 。
+- **复杂度分析：**
+    - 时间复杂度 $O(N)$：遍历一遍`nums`需要线性时间复杂度；
+    - 空间复杂度 $O(1)$：使用常数额外空间。
+
+<![Picture1.png](https://pic.leetcode-cn.com/692ea5a3c41665eb227ee9a5004d9401d45ab5a68bd696d48f4635f13c01ee06-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/31442dd7264f87ad1d9812b34932db659497dddee615c6a19130ccaa56f366bc-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/93f579277878922bc661f6958864dfaf9b386c7ac25a99fb022832cb5d712776-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/d1f09d5cfa1c0b6f85e719bba2455f8c6a6d96bba48c94ecded5b36da5ee256f-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/0e5f5903a24d757a1c15e9dc49fad0780a4a3d71eb7c4a668d40ee8be0de9c77-Picture5.png)>
+
+```Python []
 class Solution:
     def singleNumber(self, nums: [int]) -> int:
         ones, twos, threes = 0, 0, 0
         for num in nums:
-            twos |= ones & num # ones & num 提取两个数都为1的位，与twos作或操作保留出现2次的位
-            ones ^= num  # 当 ones 和 num 同时为 1 or 0 时，ones = 0，因为同时为1已经加到twos里了，这里不做count
-            threes = ones & twos # 当ones和twos对应位都为1时，说明此位出现了3次
-            ones &= ~threes # three为1的位，将one和two对应位归零
+            twos |= ones & num # 二进制某位出现1次时twos = 0，出现2, 3次时twos = 1；
+            ones ^= num  # 二进制某位出现2次时ones = 0，出现1, 3次时ones = 1；
+            threes = ones & twos # 二进制某位出现3次时（即twos = ones = 1时）three = 1，其余即出现1, 2次时three = 0；
+            ones &= ~threes # 将二进制下出现3次的位置零，实现`三进制下不考虑进位的加法`；
             twos &= ~threes
         return ones
 ```
-```java []
+
+```Java []
 class Solution {
     public int singleNumber(int[] nums) {
         int ones = 0, twos = 0, threes = 0;
@@ -2527,16 +2584,62 @@ class Solution {
 
 ---
 
+#### 进一步简化：
+
+- 以上过程本质上是通过构建 $3$ 个变量的状态转换表来表示对应位的出现次数：使所有数字“相加”后出现 $3N+1$ 次的位 $ones = 1$，出现$3N, 3N+2$次的位为 $ones = 0$。由于 $three$ 其实是`ones & twos`的结果，因此我们可以舍弃 $threes$ ，仅使用 $ones$ 和 $twos$ 来记录出现次数。
+
+| 某位出现   | 1次   | 2次   | 3次   | 4次   | 5次   | 6次   | ... |
+| ---------- | ----- | ----- | ----- | ----- | ----- | ----- | --- |
+| ones       | 1     | 0     | 0     | 1     | 0     | 0     | ... |
+| twos       | 0     | 1     | 0     | 0     | 1     | 0     | ... |
+| ~~threes~~ | ~~0~~ | ~~0~~ | ~~1~~ | ~~0~~ | ~~0~~ | ~~1~~ | ... |
+
+- **代码分析：**
+    - `ones = ones ^ num & ~twos`：
+        - 当 $num = 1$ 时，只当 $ones = twos = 0$ 时将 $ones$ 置 $1$，代表出现 $3N+1$ 次；其余置 $0$，根据 $twos$ 值分别代表出现 $3N$ 次和 $3N+2$ 次；
+        - 当 $num = 0$ 时，$ones$ 不变；
+    - `twos = twos ^ num & ~ones`：
+        - 当 $num = 1$ 时，只当 $ones = twos = 0$ 时将 $twos$ 置 $1$，代表出现 $3N+2$ 次；其余置 $0$，根据 $ones$ 值分别代表出现 $3N$ 次和 $3N+1$ 次。
+        - 当 $num = 0$ 时，$twos$ 不变。
+
+<![Picture11.png](https://pic.leetcode-cn.com/ec4d9cb6c5dc7cd56e2ca43fc778e3d63b26ae73d4deed5d282b745a90d11a29-Picture11.png),![Picture12.png](https://pic.leetcode-cn.com/3bc5bb016144a9b333cb8ad6d06265b9ec85977dfd0b4f6259408598245674e8-Picture12.png),![Picture13.png](https://pic.leetcode-cn.com/c68b1b2ded57f9a8a7e3bc2faa8bb2b434047e1be80b9d2c78b1ad0b08934be2-Picture13.png),![Picture14.png](https://pic.leetcode-cn.com/c8032b700a9b9523635f0e56b919286a0df3eef0cd0dda23ca58082895eb5449-Picture14.png),![Picture15.png](https://pic.leetcode-cn.com/0c279aa224f36fd29e039306b92e7733c8c9b7a655ec711ccef20bc353ea894a-Picture15.png),![Picture16.png](https://pic.leetcode-cn.com/63eb0f2c06f289701416eaee46a40ee56e4b685fff2b1c55ad16b00fadf3c8c8-Picture16.png)>
+
+> 感谢评论区$angus123$的精彩代码分享。
+
+```Python []
+class Solution:
+    def singleNumber(self, nums: [int]) -> int:
+        ones, twos = 0, 0
+        for num in nums:
+            ones = ones ^ num & ~twos
+            twos = twos ^ num & ~ones
+        return ones
+```
+
+```Java []
+class Solution {
+    public int singleNumber(int[] nums) {
+        int ones = 0, twos = 0;
+        for(int num : nums){
+            ones = ones ^ num & ~twos;
+            twos = twos ^ num & ~ones;
+        }
+        return ones;
+    }
+}
+```
+
+---
+
 ### 138. Copy List with Random Pointer
-> 
->> 标签：链表，多指针
+
+> 标签：链表，多指针
 
 ---
 
 1. 复制与合并：假设原链表为`ABCDE……`，从前到后复制得到`A'B'C'D'E'……`，合并得到`AA'BB'CC'DD'EE'……`。此步骤是为了从空间上构建`random`对应关系；
 2. 设置复制链表的random项：`A.next.random = A.random.next`；
 3. 将两列表分离，返回deepcopy链表表头。
-
 
 ```python []
 class Solution:
@@ -2560,6 +2663,7 @@ class Solution:
             cur = nex
         return res
 ```
+
 ```java []
 class Solution {
     public Node copyRandomList(Node head) {
@@ -2591,15 +2695,317 @@ class Solution {
 
 ---
 
+### 141. Linked List Cycle
+
+> 标签：链表，双指针
+
+---
+
+- 设两指针`fast` `slow`指向链表头部`head`，迭代：
+    - `fast`每轮走两步，`slow`每轮走一步，这样两指针每轮后`距离+1`;
+    - 若链表中存在环，`fast`和`slow`一定会在将来相遇（距离连续+1，没有跳跃）；
+- 若`fast`走到了链表尾部，则说明链表无环。
+
+```python []
+class Solution(object):
+    def hasCycle(self, head):
+        fast, slow = head, head
+        while fast and fast.next:
+            fast = fast.next.next
+            slow = slow.next
+            if fast == slow: return True
+        return False
+```
+
+```java []
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        ListNode fast = head, slow = head;
+        while (fast != null && fast.next != null) {
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) return true;
+        }
+        return false;
+    }
+}
+```
+
+---
+
+### 142. Linked List Cycle II
+
+> 标签：链表，双指针
+
+---
+
+#### 解题思路
+
+- **构建双指针第一次相遇：** 
+    - 设两指针`fast`,`slow`指向链表头部`head`，`fast`每轮走 $2$ 步，`slow`每轮走一步；
+    - 若`fast`指针走过链表末端，说明链表无环，直接返回`null`；
+    - 当`fast == slow`时，代表两指针在环中 **第一次相遇** ，此时执行 $break$ 跳出迭代；
+- **第一次相遇步数分析：** 
+    - 设两指针分别走了 $f$ , $s$ 步，设链表头部到环需要走 $a$ 步，链表环长度 $b$ 步；
+    - 快指针走了慢指针 $2$ 倍的路程 $f = 2s$ ，快指针比慢指针多走了 $n$ 个环的长度 $f = s + nb$（因为每走一轮，`fast`与`slow`的 **间距** $+1$ ，若有环，快慢两指针终会相遇）；
+    - 因此可推出： $f = 2nb$ , $s = nb$ ，即两指针分别走了 $2n$ 个环、 $n$ 个环的周长。
+- **构建双指针第二次相遇：** 
+    - 将`fast`指针重新指向链表头部`head`，`slow`指针位置不变，双指针一起向前走（每轮走 $1$ 步）；
+    - 当`fast`指针走到 $a$ 步时，`slow`指针正好走到 $a + nb$ 步，即 **两指针重合并同时指向链表环入口** 。
+- 最终返回`fast`或`slow`即可。
+- **复杂度分析：**
+    - 时间复杂度 $O(N)$ ：第二次相遇中，慢指针须走步数 $a < a + b$ ；第一次相遇中，慢指针须走步数 $a + b - x < a + b$，其中 $x$ 为双指针重合点与环入口距离；因此总体为线性复杂度；
+    - 空间复杂度 $O(1)$ ：双指针使用常数大小的额外空间。
+
+<![Picture1.png](https://pic.leetcode-cn.com/a4788076d4f3ad247c2023f92bb1585d05c5132ece7ed1205e2e171e25648adc-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/4ccc10d8af901acf43f4db0e5cd0e3c537aeb2346f57ad66c92cb9cbba0f1f73-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/5bfd893f81962daed27dd9fc3c96e426b168f4e940e5ab7541c323ee416548ec-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/387bfbbe71b3f1d462f72472b8168b894b7c41907e8a66bb770cd7a7ad04d48d-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/54d3a446f6acf92de2e51e639fb4f05abffa468334a778bd74c63f990cd73276-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/9a319387f7fe8d3c3acb9d6bc0bc9f7471ccff6699115db724a99d2acb7b68ca-Picture6.png),![Picture7.png](https://pic.leetcode-cn.com/f3977a8e28b45952e01334c1c86d70e3e822c913f81318108052aea81e365788-Picture7.png),![Picture8.png](https://pic.leetcode-cn.com/114969493875dcdca1d1bea8fb997643975d25b4ddb185dd071a185ed435cccd-Picture8.png),![Picture9.png](https://pic.leetcode-cn.com/c7ab2f7023d5f8c7fcae71280b56c1ec6acf65f634ef82d61713fcff1ea2ee75-Picture9.png),![Picture10.png](https://pic.leetcode-cn.com/af490a825982d42be6baf7e87a3e1cf181420bb9f46aa0ccbb190719c8b4dd92-Picture10.png),![Picture11.png](https://pic.leetcode-cn.com/f31767986757b751bfec07f824714044611b4a54bf8e794b2f4684a175dde044-Picture11.png)>
+
+#### 代码
+
+```python []
+class Solution(object):
+    def detectCycle(self, head):
+        fast, slow = head, head
+        while True:
+            if not (fast and fast.next): return
+            fast, slow = fast.next.next, slow.next
+            if fast == slow: break
+        fast = head
+        while fast != slow:
+            fast, slow = fast.next, slow.next
+        return fast
+```
+
+```java []
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        ListNode fast = head, slow = head;
+        while (true) {
+            if (fast == null || fast.next == null) return null;
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) break;
+        }
+        fast = head;
+        while (slow != fast) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return fast;
+    }
+}
+```
+
+---
+
+### 146. LRU Cache
+
+> 标签：哈希表，双向链表
+
+---
+
+- 使用`python`和`java`自带的 **双向链表 + 哈希表** 数据结构实现。`Python` 为 `collections.OrderedDict()`， `Java` 为 `LinkedHashMap<>()` 。原理是将哈希表中所有`key`使用双向链表连接起来，链表按照 **访问顺序** 排序，访问操作包括：添加、获取。
+
+- `get(int key)`设计：
+    - 返回哈希表中`key`对应的`value`；
+    - 在返回前，需要将此`key`移动至双向链表的尾部（代表为最新元素）。
+
+- `put(int key, int value)`设计：
+    - 若哈希表中已存在此`key`，先将此`key`移动至链表尾部（代表为最新元素）；
+    - 若`key`不在哈希表中，则判断双向链表当前元素个数是否等于容量`capacity`大小：若等于则将最老元素（链表首部元素）从哈希表和双向链表中删除；
+        - 此步`Python`调用`self.dic.popitem(0)`实现，`Java`通过重写`LinkedHashMap`类中的`removeEldestEntry()`方法实现。
+    - 在哈希表中加入此键值对，并在链表末端加入此`key`。 
+
+```python []
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.dic, self.cap = collections.OrderedDict(), capacity
+
+    def get(self, key: int) -> int:
+        if key not in self.dic: return -1
+        self.dic.move_to_end(key)
+        return self.dic[key]
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.dic: del self.dic[key]
+        elif len(self.dic) == self.cap: self.dic.popitem(0)
+        self.dic[key] = value
+```
+
+```java []
+class LRUCache {
+    private LinkedHashMap<Integer, Integer> map;
+    public LRUCache(int capacity) {
+        map = new LinkedHashMap<Integer, Integer>(capacity, .75F, true) {
+            private static final long serialVersionUID = 4267176411845948333L;
+            protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
+                return map.size() > capacity;
+            }
+        };
+    }
+    public int get(int key) {
+        return map.getOrDefault(key, -1);
+    }
+    public void put(int key, int value) {
+        map.put(key,value);
+    }
+}
+```
+
+---
+
+### 148. Sort List
+
+> 标签：链表，归并排序
+
+---
+
+#### 解答一：归并排序（递归法）
+
+- 题目要求时间空间复杂度分别为$O(nlogn)$和$O(1)$，根据时间复杂度我们自然想到二分法，从而联想到归并排序；
+- 对数组做归并排序的空间复杂度为 $O(n)$，分别由新开辟数组$O(n)$和递归函数调用$O(logn)$组成，而根据链表特性：
+    - 数组额外空间：链表可以通过修改引用来更改节点顺序，无需像数组一样开辟额外空间；
+    - 递归额外空间：递归调用函数将带来$O(logn)$的空间复杂度，因此若希望达到$O(1)$空间复杂度，则不能使用递归。
+
+- 通过递归实现链表归并排序，有以下两个环节：
+    - **分割 cut 环节：** 找到当前链表`中点`，并从`中点`将链表断开（以便在下次递归 `cut` 时，链表片段拥有正确边界）；
+        - 我们使用 `fast,slow` 快慢双指针法，奇数个节点找到中点，偶数个节点找到中心左边的节点。
+        - 找到中点 `slow` 后，执行 `slow.next = None` 将链表切断。
+        - 递归分割时，输入当前链表左端点 `head` 和中心节点 `slow` 的下一个节点 `tmp`(因为链表是从 `slow` 切断的)。
+        - **cut 递归终止条件：** 当`head.next == None`时，说明只有一个节点了，直接返回此节点。
+    - **合并 merge 环节：** 将两个排序链表合并，转化为一个排序链表。
+        - 双指针法合并，建立辅助ListNode `h` 作为头部。
+        - 设置两指针 `left`, `right` 分别指向两链表头部，比较两指针处节点值大小，由小到大加入合并链表头部，指针交替前进，直至添加完两个链表。
+        - 返回辅助ListNode `h` 作为头部的下个节点 `h.next`。
+        - 时间复杂度 `O(l + r)`，`l, r` 分别代表两个链表长度。 
+    - 当题目输入的 `head == None` 时，直接返回None。
+
+![Picture2.png](https://pic.leetcode-cn.com/8c47e58b6247676f3ef14e617a4686bc258cc573e36fcf67c1b0712fa7ed1699-Picture2.png){:width=600}
+{:align=center}
+
+```python []
+class Solution:
+    def sortList(self, head: ListNode) -> ListNode:
+        if not head or not head.next: return head # termination.
+        # cut the LinkedList at the mid index.
+        slow, fast = head, head.next
+        while fast and fast.next:
+            fast, slow = fast.next.next, slow.next
+        mid, slow.next = slow.next, None # save and cut.
+        # recursive for cutting.
+        left, right = self.sortList(head), self.sortList(mid)
+        # merge `left` and `right` linked list and return it.
+        h = res = ListNode(0)
+        while left and right:
+            if left.val < right.val: h.next, left = left, left.next
+            else: h.next, right = right, right.next
+            h = h.next
+        h.next = left if left else right
+        return res.next
+```
+
+```java []
+class Solution {
+    public ListNode sortList(ListNode head) {
+        if (head == null || head.next == null)
+            return head;
+        ListNode fast = head.next, slow = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        ListNode tmp = slow.next;
+        slow.next = null;
+        ListNode left = sortList(head);
+        ListNode right = sortList(tmp);
+        ListNode h = new ListNode(0);
+        ListNode res = h;
+        while (left != null && right != null) {
+            if (left.val < right.val) {
+                h.next = left;
+                left = left.next;
+            } else {
+                h.next = right;
+                right = right.next;
+            }
+            h = h.next;
+        }
+        h.next = left != null ? left : right;
+        return res.next;
+    }
+}
+```
+
+#### 解答二：归并排序（从底至顶直接合并）
+
+- 对于非递归的归并排序，需要使用迭代的方式替换`cut`环节：
+    - 我们知道，`cut`环节本质上是通过二分法得到链表最小节点单元，再通过多轮合并得到排序结果。
+    - 每一轮合并`merge`操作针对的单元都有固定长度`intv`，例如：
+        - 第一轮合并时`intv = 1`，即将整个链表切分为多个长度为1的单元，并按顺序两两排序合并，合并完成的已排序单元长度为2。
+        - 第二轮合并时`intv = 2`，即将整个链表切分为多个长度为2的单元，并按顺序两两排序合并，合并完成已排序单元长度为4。
+        - 以此类推，直到单元长度`intv >= 链表长度`，代表已经排序完成。
+    - 根据以上推论，我们可以仅根据`intv`计算每个单元边界，并完成链表的每轮排序合并，例如:
+        - 当`intv = 1`时，将链表第`1`和第`2`节点排序合并，第`3`和第`4`节点排序合并，……。
+        - 当`intv = 2`时，将链表第`1-2`和第`3-4`节点排序合并，第`5-6`和第`7-8`节点排序合并，……。
+        - 当`intv = 4`时，将链表第`1-4`和第`5-8`节点排序合并，第`9-12`和第`13-16`节点排序合并，……。
+- 此方法时间复杂度$O(nlogn)$，空间复杂度$O(1)$。
+
+![Picture1.png](https://pic.leetcode-cn.com/c1d5347aa56648afdec22372ee0ed13cf4c25347bd2bb9727b09327ce04360c2-Picture1.png)
+
+- 模拟上述的多轮排序合并：
+    - 统计链表长度`length`，用于通过判断`intv < length`判定是否完成排序；
+    - 额外声明一个节点`res`，作为头部后面接整个链表，用于：
+        - `intv *= 2`即切换到下一轮合并时，可通过`res.next`找到链表头部`h`；
+        - 执行排序合并时，需要一个辅助节点作为头部，而`res`则作为链表头部排序合并时的辅助头部`pre`；后面的合并排序可以将上次合并排序的尾部`tail`用做辅助节点。
+    - 在每轮`intv`下的合并流程：
+        1. 根据`intv`找到合并单元1和单元2的头部`h1`, `h2`。由于链表长度可能不是`2^n`，需要考虑边界条件：
+            - 在找`h2`过程中，如果链表剩余元素个数少于`intv`，则无需合并环节，直接`break`，执行下一轮合并；
+            - 若`h2`存在，但以`h2`为头部的剩余元素个数少于`intv`，也执行合并环节，`h2`单元的长度为`c2 = intv - i`。
+        2. 合并长度为`c1, c2`的`h1, h2`链表，其中：
+            - 合并完后，需要修改新的合并单元的尾部`pre`指针指向下一个合并单元头部`h`。（在寻找`h1, h2`环节中，h指针已经被移动到下一个单元头部）
+            - 合并单元尾部同时也作为下次合并的辅助头部`pre`。
+        3. 当`h == None`，代表此轮`intv`合并完成，跳出。
+    - 每轮合并完成后将单元长度×2，切换到下轮合并：`intv *= 2`。
+
+```python []
+class Solution:
+    def sortList(self, head: ListNode) -> ListNode:
+        h, length, intv = head, 0, 1
+        while h: h, length = h.next, length + 1
+        res = ListNode(0)
+        res.next = head
+        # merge the list in different intv.
+        while intv < length:
+            pre, h = res, res.next
+            while h:
+                # get the two merge head `h1`, `h2`
+                h1, i = h, intv
+                while i and h: h, i = h.next, i - 1
+                if i: break # no need to merge because the `h2` is None.
+                h2, i = h, intv
+                while i and h: h, i = h.next, i - 1
+                c1, c2 = intv, intv - i # the `c2`: length of `h2` can be small than the `intv`.
+                # merge the `h1` and `h2`.
+                while c1 and c2:
+                    if h1.val < h2.val: pre.next, h1, c1 = h1, h1.next, c1 - 1
+                    else: pre.next, h2, c2 = h2, h2.next, c2 - 1
+                    pre = pre.next
+                pre.next = h1 if c1 else h2
+                while c1 > 0 or c2 > 0: pre, c1, c2 = pre.next, c1 - 1, c2 - 1
+                pre.next = h
+            intv *= 2
+        return res.next
+```
+
+---
+
 ### 150. Evaluate Reverse Polish Notation
-> 
->> 标签：字符串，栈
+
+> 标签：字符串，栈
 
 ---
 
 - 解析`逆波兰式（后缀表达式）`；同理还有前缀表达式、中缀表达式。
 - 利用栈先进后出的特性遍历逆波兰式，当遇到计算符号时pop前两个字符进行计算，将计算结果push进stack；遇到数字时直接push进stack。
-
 
 ```python []
 class Solution:
@@ -2612,18 +3018,16 @@ class Solution:
             else:
                 stack.append(int(t))
         return stack[-1]
-
-
     def eval(self, x, y, symbol):
         if symbol == '+': return x + y
         if symbol == '-': return x - y
         if symbol == '*': return x * y
         if symbol == '/': return int(x / y)
 ```
+
 ```java []
 class Solution {
     private static final Set<String> SYMBOLS = new HashSet<>(Arrays.asList("+","-","*","/"));
-    
     public int evalRPN(String[] tokens) {
         Stack<Integer> stack = new Stack<>();
         for(String t : tokens){
@@ -2637,7 +3041,6 @@ class Solution {
         }
         return stack.peek();
     }
-
     private int eval(int x, int y, String symbol){
         switch(symbol){
             case "+": return x + y;
@@ -5299,7 +5702,8 @@ class Solution:
   - 从矩阵某节点开始，可以向上下左右走，每个方向的格子数量都需要统计，因此递归将几个结果+；
   - 不能走的终止条件：矩阵越界、已经统计过、不满足题中的加和条件；
   - 建立matrix统计此格子是否已被统计。
-- 可以理解为机器人按照以下优先级：向右、向左、向下、向上前进，其实此题下只需要向右向左向下即可，由于上面的点都已经走过，self.moving(i, j-1)始终会return 0
+- 可以理解为机器人按照以下优先级：向右、向左、向下、向上前进，其实此题下只需要�������右向左向下即可，由于上面的点都已经走过，self.moving(i, j-1)始终会return 0
+
 ```python
 # -*- coding:utf-8 -*-
 class Solution:

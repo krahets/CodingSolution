@@ -8,11 +8,6 @@ class LRUCache:
         return self.dic[key]
 
     def put(self, key: int, value: int) -> None:
-        if key in self.dic: del self.dic[key]
-        elif len(self.dic) == self.cap: self.dic.pop(False)
+        if key in self.dic: self.dic.move_to_end(key)
+        elif len(self.dic) == self.cap: self.dic.popitem(0)
         self.dic[key] = value
-
-# Your LRUCache object will be instantiated and called as such:
-# obj = LRUCache(capacity)
-# param_1 = obj.get(key)
-# obj.put(key,value)
