@@ -6,11 +6,9 @@ class Solution {
         return res;
     }
     private void inorder(TreeNode root) {
-        if(root != null) {
-            inorder(root.left);
-            if(res != Integer.MAX_VALUE) return;
-            if(--count == 0) res = root.val;
-            inorder(root.right);
-        }
+        if(root == null || count == 0) return;
+        inorder(root.left);
+        if(--count == 0) res = root.val;
+        inorder(root.right);
     }
 }

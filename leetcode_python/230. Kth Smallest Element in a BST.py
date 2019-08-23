@@ -14,14 +14,12 @@ s = Solution()
 print(s.kthSmallest(root, 3))
 
 
-
 class Solution:
     def kthSmallest(self, root: TreeNode, k: int) -> int:
         self.res, self.count = None, k
         def inorder(root):
-            if not root: return
+            if not (root and self.count): return
             inorder(root.left)
-            if self.res: return
             self.count -= 1
             if not self.count: self.res = root.val
             inorder(root.right)

@@ -3055,15 +3055,15 @@ class Solution {
 ---
 
 ### 151. Reverse Words in a String
-> 
->> 标签：字符串，双指针
+
+> 标签：字符串，双指针
 
 ---
 
 - 先处理字符串，将首尾空格都删除；
-1. 倒序遍历字符串，当第一次遇到空格时，添加`s[i + 1: j]`（即添加一个完整单词）；
-2. 然后，将直至下一个单词中间的空格跳过，并记录下一个单词尾部`j`；
-3. 继续遍历，直至下一次遇到第一个空格，回到`1.`步骤；
+  1. 倒序遍历字符串，当第一次遇到空格时，添加`s[i + 1: j]`（即添加一个完整单词）；
+  2. 然后，将直至下一个单词中间的空格跳过，并记录下一个单词尾部`j`；
+  3. 继续遍历，直至下一次遇到第一个空格，回到`1.`步骤；
 - 由于`s`首部没有空格，因此最后需要将第一个单词加入，再return。
 - python可一行实现。
 
@@ -3081,10 +3081,12 @@ class Solution:
             i -= 1
         return res + s[:j]
 ```
+
 ```python []
     def reverseWords1(self, s: str) -> str:
         return " ".join(s.split()[::-1])
 ```
+
 ```java []
 class Solution {
     public String reverseWords(String s) {
@@ -3108,17 +3110,17 @@ class Solution {
 ---
 
 ### 152. Maximum Product Subarray
-> 
->> 标签：动态规划，数组
+
+> 标签：动态规划，数组
 
 ---
 
-- 此题与53题类似，不同处是53题的运算是加法，本题是乘法。
-  - 对于加法，在遍历数组中始终取`max(ma + nums[i], nums[i])`即可，因为无论`nums[i]`的正负如何，
-  - 对与乘法，在遍历数组中，若`nums[i]`是负数，那么当前最大值`ma * nums[i]`会变成当前最小值（负数），因此不能简单的只记录最大值。
-- 本题的解题思路是同时记录当前最大值和最小值`ma, mi`：
-  - 当`nums[i]`是正数时，`ma, mi * nums[i]`仍然是最大值，最小值；
-  - 当`nums[i]`是负数时，`ma, mi * nums[i]`将变成最小值， 最大值；
+- 此题与53题类似，不同处是 $53$ 题的运算是加法，本题是乘法。
+  - 对于加法，在遍历数组中始终取`max(ma + nums[i], nums[i])`即可，因为无论`nums[i]`的正负如何，最大值一定出现在当前最大值 + 当前值 or 当前值 中的一个。
+  - 对与乘法，在遍历数组中，若`nums[i]`是负数，那么`ma * nums[i]`（即当前最大值与`nums[i]`的乘积）会变成当前最小值（负数），因此不能简单的只记录最大值。
+- 本题的解题思路是同时记录当前最大值和最小值`ma`, `mi`：
+  - 当`nums[i]`是正数时，`ma`仍然是最大值，`mi * nums[i]`为最小值；
+  - 当`nums[i]`是负数时，`ma`将变成最小值，`mi * nums[i]`为最大值；
   - 因此，当`nums[i] < 0`时，我们交换`ma, mi`。
 - 在遍历`nums`过程中，每次更新`res`获取全局最大值。
 
@@ -3131,8 +3133,9 @@ class Solution:
             ma = max(ma * nums[i], nums[i])
             mi = min(mi * nums[i], nums[i])
             res = max(res, ma)
-        return res 
+        return res
 ```
+
 ```java []
 class Solution {
     public int maxProduct(int[] nums) {
@@ -3155,8 +3158,8 @@ class Solution {
 ---
 
 ### 153. Find Minimum in Rotated Sorted Array
-> 
->> 标签：数组，二分法
+
+> 标签：数组，二分法
 
 ---
 
@@ -3164,9 +3167,8 @@ class Solution {
 - 因此，考虑二分法寻找值`nums[i]`，满足`nums[i] < nums[i-1]` and `nums[i] < nums[i+1]`
 - 设置`left`, `right`指针在nums数组两端，`mid`为中点：
   - 当`nums[mid] > nums[right]`时，一定满足`mid < i <= right`，因此`left = mid + 1`；
-  - 当`nums[mid] < nums[right]`时，一定满足`left< i <= mid`，因此`right = mid`；
+  - 当`nums[mid] < nums[right]`时，一定满足`left < i <= mid`，因此`right = mid`；
   - 当`nums[mid] == nums[right]`时，说明数组长度`len(num) == 1`（因为计算mid向下取整）；当`left = right`也满足，但本题`left == right`时跳出循环。
-
 
 ```python []
 class Solution:
@@ -3178,6 +3180,7 @@ class Solution:
             else: right = mid
         return nums[left]
 ```
+
 ```java []
 class Solution {
     public int findMin(int[] nums) {
@@ -3195,28 +3198,38 @@ class Solution {
 ---
 
 ### 154. Find Minimum in Rotated Sorted Array II
-> 
->> 标签：二分法，数组
+
+> 标签：二分法，数组
 
 ---
 
-- 旋转排序数组`nums`可以被拆分为2个排序数组`nums1`, `nums2`，并且`nums1`所有元素>=`nums2`所有元素；
-- 因此，考虑二分法寻找值`nums[i]`；
-- 设置`left`, `right`指针在nums数组两端，`mid`为中点：
-  - 当`nums[mid] > nums[right]`时，一定满足`mid < i <= right`，因此`left = mid + 1`；
-  - 当`nums[mid] < nums[right]`时，一定满足`left < i <= mid`，因此`right = mid`；
-  - 当`nums[mid] == nums[right]`时，是此题对比`153`题的难点（原因是此题中数组的元素`可重复`，相等就难以判断最小值的指针区间）；先说结果：采用`right = right - 1`，下面证明：
-    - 首先，此操作`不会使数组越界`，因为`right > left > 0`；
-    - 其次，此操作`不会使最小值丢失`，证明：假设'nums[right]'是最小值，有两种情况：
-        - 若`nums[right]`是唯一最小值：那就不可能满足判断条件`nums[mid] == nums[right]`，因为`left != right`且`mid = left + right // 2  < right`（向下取整）；
-        - 若有其他元素和`nums[right]`同为最小值：还有最小值存在于`[left, right -1]`间，不会丢失最小值。
-- 以上是理论分析，可以用以下数组辅助思考：
-  - `[1, 2, 3]`
-  - `[1, 1, 0, 1]`
-  - `[1, 0, 1, 1, 1]`
-  - `[1, 1, 1, 1]`
+#### 思路：
 
-```python []
+- 旋转排序数组 $nums$ 可以被拆分为 2 个排序数组 $nums1$ , $nums2$ ，并且 `nums1任一元素 >= nums2任一元素`；因此，考虑二分法寻找此两数组的分界点 $nums[i]$ (即第 2 个数组的首个元素)。
+- 设置 $left$, $right$ 指针在 $nums$ 数组两端，$mid$ 为每次二分的中点：
+  - 当 `nums[mid] > nums[right]`时，$mid$ 一定在第 1 个排序数组中，$i$ 一定满足 `mid < i <= right`，因此执行 `left = mid + 1`；
+  - 当 `nums[mid] < nums[right]` 时，$mid$ 一定在第 2 个排序数组中，$i$ 一定满足 `left < i <= mid`，因此执行 `right = mid`；
+  - 当 `nums[mid] == nums[right]` 时，是此题对比 **[153题](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/solution/find-minimum-in-rotated-sorted-array-er-fen-fa-by-/)** 的难点（原因是此题中数组的元素**可重复**，难以判断分界点 $i$ 指针区间）；
+    - 例如 $[1, 0, 1, 1, 1]$ 和 $[1, 1, 1, 0, 1]$ ，在 `left = 0`, `right = 4`, `mid = 2` 时，无法判断 $mid$ 在哪个排序数组中。
+    - 我们采用 `right = right - 1` 解决此问题，证明：
+        1. 此操作*不会使数组越界*：因为迭代条件保证了 `right > left >= 0`；
+        2. 此操作*不会使最小值丢失*：假设 $nums[right]$ 是最小值，有两种情况：
+            - 若 $nums[right]$ 是唯一最小值：那就不可能满足判断条件 `nums[mid] == nums[right]`，因为 `mid < right`（`left != right` 且 `mid = (left + right) // 2` 向下取整）；
+            - 若 $nums[right]$ 不是唯一最小值，由于 `mid < right` 而 `nums[mid] == nums[right]`，即还有最小值存在于 $[left, right - 1]$ 区间，因此不会丢失最小值。
+- 以上是理论分析，可以代入以下数组辅助思考：
+  - $[1, 2, 3]$
+  - $[1, 1, 0, 1]$
+  - $[1, 0, 1, 1, 1]$
+  - $[1, 1, 1, 1]$
+- 时间复杂度 $O(logN)$，在特例情况下会退化到 $O(N)$（例如 $[1, 1, 1, 1]$）。
+
+#### 图解：
+
+<![Picture1.png](https://pic.leetcode-cn.com/5c4b7d4827e1538ca8f5a67f2c64705304ae985f80bd1e43d6f193bd2f2dea57-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/8bdaadfe391de9f71029d8993d0b0befc63cf89d9d79ad821eb1508532ac4e9c-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/158047037b8a79d0a8afdb25025665658286548055c95c0feffea67ccf0a6133-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/d5b3ce02860dd88525abb972eaf49d8a0484f402e7a50739fced16174256f8ad-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/ea7cca7c83afd8a5423e2e16a684fd5300301e957b79134418d8087f2eba8e0b-Picture5.png)>
+
+#### 代码：
+
+```Python []
 class Solution:
     def findMin(self, nums: List[int]) -> int:
         left, right = 0, len(nums) - 1
@@ -3227,7 +3240,8 @@ class Solution:
             else: right = right - 1 # key
         return nums[left]
 ```
-```java []
+
+```Java []
 class Solution {
     public int findMin(int[] nums) {
         int left = 0, right = nums.length - 1;
@@ -3245,15 +3259,17 @@ class Solution {
 ---
 
 ### 155. Min Stack
-> 
->> 标签：栈，设计
+
+> 标签：栈，设计
 
 ---
 
-- 借用一个辅助栈`min_stack`，每当push新值进来时，如果小于等于`min_stack`栈顶值则一起push到`min_stack`；
-- pop时判断是否是最小值，如果是则`min_stack`一起pop，这样可以保证`min_stack栈顶始终是`stack`中的最小值。
-- 时间空间复杂度都为`O(N)`。
-
+- 借用一个辅助栈`min_stack`，用于存储`stack`中最小值：
+    - `push:`每当push新值进来时，如果“小于等于”`min_stack`栈顶值，则一起push到`min_stack`，即更新了最小值；
+    - `pop:`判断pop出去的元素值是否是`min_stack`栈顶元素值（即最小值），如果是则将`min_stack`栈顶元素一起pop，这样可以保证`min_stack`栈顶元素始终是`stack`中的最小值。
+    - `getMin:`返回`min_stack`栈顶即可。
+- `min_stack`的作用是对`stack`中的元素做标记，标记的原则是`min_stack`中元素一定是降序的（栈底最大栈顶最小）。换个角度理解，`min_stack`等价于遍历`stack`所有元素，把升序的数字都删除掉，留下一个从栈底到栈顶降序的栈。本题要求获取最小值的复杂度是`O(1)`，因此须构建辅助栈，在push与pop的过程中始终保持辅助栈为一个降序栈。
+- 时间空间复杂度都为`O(N)`，获取最小值复杂度为`O(1)`。
 
 ```python []
 class MinStack:
@@ -3263,21 +3279,19 @@ class MinStack:
         """
         self.stack = []
         self.min_stack = []
-        
     def push(self, x: int) -> None:
         self.stack.append(x)
-        if not self.min_stack or x <= self.min_stack[-1]: 
+        if not self.min_stack or x <= self.min_stack[-1]:
             self.min_stack.append(x)
     def pop(self) -> None:
         if self.stack.pop() == self.min_stack[-1]:
             self.min_stack.pop()
-        
     def top(self) -> int:
         return self.stack[-1]
-        
     def getMin(self) -> int:
         return self.min_stack[-1]
 ```
+
 ```java []
 class MinStack {
     private Stack<Integer> stack;
@@ -3287,22 +3301,18 @@ class MinStack {
         stack = new Stack<>();
         min_stack = new Stack<>();
     }
-    
     public void push(int x) {
         stack.push(x);
         if(min_stack.isEmpty() || x <= min_stack.peek())
             min_stack.push(x);
     }
-    
     public void pop() {
         if(stack.pop().equals(min_stack.peek()))
             min_stack.pop();
     }
-    
     public int top() {
         return stack.peek();
     }
-    
     public int getMin() {
         return min_stack.peek();
     }
@@ -3312,8 +3322,8 @@ class MinStack {
 ---
 
 ### 156. Binary Tree Upside Down
-> 
->> 标签：树，迭代
+
+> 标签：树，迭代
 
 ---
 
@@ -3324,8 +3334,6 @@ class MinStack {
   - `root`是下一轮递归`root`的`root.right`；
   - `root.right`是下一轮递归`root`的`root.left`。
 - 返回parent。
-
-
 
 ```python []
 class Solution:
@@ -3340,6 +3348,7 @@ class Solution:
             root = root_left
         return parent
 ```
+
 ```java []
 class Solution {
     public TreeNode upsideDownBinaryTree(TreeNode root) {
@@ -3360,8 +3369,8 @@ class Solution {
 ---
 
 ### 159. Longest Substring with At Most Two Distinct Characters
-> 
->> 标签：字符串，双指针
+
+> 标签：字符串，双指针
 
 ---
 
@@ -3388,6 +3397,7 @@ class Solution:
             res = max(res, j - i + 1)
         return res
 ```
+
 ```java []
 class Solution {
     public int lengthOfLongestSubstringTwoDistinct(String s) {
@@ -3410,9 +3420,52 @@ class Solution {
 
 ---
 
+### 160. One Edit Distance
+
+> 标签：字符串、指针
+
+---
+
+### 解题思路：
+
+- 我们通常做这种题的思路是设定两个指针分别指向两个链表头部，一起向前走直到其中一个到达末端，另一个与末端距离则是两链表的 `长度差`。再通过长链表指针先走的方式消除长度差，最终两链表即可同时走到相交点。
+- **换个方式消除长度差：** 拼接两链表。
+     设长-短链表为 `C`，短-长链表为 `D` （分别代表长链表在前和短链表在前的拼接链表），则当 `C` 走到长短链表交接处时，`D` 走在长链表中，且与长链表头距离为 `长度差`;
+   以下图片帮助理解：当 `ha == hb` 时跳出，返回即可。
+
+![Picture1.png](https://pic.leetcode-cn.com/5651993ddb76ae6a42f0b338aec9382206f567041113f49d6ca670832ac75791-Picture1.png){:width=500}
+{:align=center}
+
+### 代码：
+
+```Python []
+class Solution(object):
+    def getIntersectionNode(self, headA, headB):
+        ha, hb = headA, headB
+        while ha != hb:
+            ha = ha.next if ha else headB
+            hb = hb.next if hb else headA
+        return ha
+```
+
+```Java []
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode ha = headA, hb = headB;
+        while (ha != hb) {
+            ha = ha != null ? ha.next : headB;
+            hb = hb != null ? hb.next : headA;
+        }
+        return ha;
+    }
+}
+```
+
+---
+
 ### 161. One Edit Distance
-> 
->> 标签：字符串、指针
+
+> 标签：字符串、指针
 
 ---
 
@@ -3423,7 +3476,7 @@ class Solution {
 3. 第二段匹配需要根据长度之差做不同处理：
     1. 若`长度之差=0`，则`s`,`t`的index同时+1（同时越过此不同字符），继续比较；
     2. 若`长度之差=1`，则s的index不变，t的index+1（越过需要插入的字符），继续比较；
-5. 如果能够匹配完整个`s`，返回`True`，否则说明有两个及以上不同字符or插入点，返回`False`。
+4. 如果能够匹配完整个`s`，返回`True`，否则说明有两个及以上不同字符or插入点，返回`False`。
 
 ```python []
 class Solution:
@@ -3437,6 +3490,7 @@ class Solution:
         while i < len(s) and s[i] == t[i + dif]: i += 1 # 3.
         return i == len(s) #5.
 ```
+
 ```java []
 class Solution {
     public boolean isOneEditDistance(String s, String t) {
@@ -3455,8 +3509,8 @@ class Solution {
 ---
 
 ### 163. Missing Ranges
-> 
->> 标签：数组，双指针
+
+> 标签：数组，双指针
 
 ---
 
@@ -3476,6 +3530,7 @@ class Solution:
             low = num
         return res
 ```
+
 ```java []
 class Solution {
     public List<String> findMissingRanges(int[] nums, int lower, int upper) {
@@ -3495,9 +3550,44 @@ class Solution {
 
 ---
 
+### 169. Majority Element
+
+> 标签：数组，众数
+
+---
+
+- 我们假设将第一个数字作为众数看待，遍历数组，若`元素 == 当前众数res`则`count += 1`，否则`count -= 1`;
+- 在下次`count == 0`时，意味着`当前众数res`的数量为已遍历元素一半；这种情况下，剩余数组众数仍等于原数组众数（因为最坏的情况是已遍历数组中一半是数组众数，一半是非众数）。
+- 因此，在每次`count == 0`时，记录当前数字为`当前众数`，当遍历完整个数组时，留下的`res`一定为整个数组的众数（最坏情况是在最后一个元素才找到众数，前面的`count`全部抵消）。
+
+```python []
+class Solution:
+    def majorityElement(self, nums: [int]) -> int:
+        count = 0
+        for num in nums:
+            if not count: res = num
+            count += 1 if num == res else -1
+        return res
+```
+
+```java []
+class Solution {
+    public int majorityElement(int[] nums) {
+        int res = 0, count = 0;
+        for(int num : nums){
+            if(count == 0) res = num;
+            count += num == res ? 1 : -1;
+        }
+        return res;
+    }
+}
+```
+
+---
+
 ### 170. Two Sum III - Data structure design
-> 
->> 标签：哈希表Hash
+
+> 标签：哈希表Hash
 
 ---
 
@@ -3506,7 +3596,6 @@ class Solution {
 - `find`：在搜索是否有加和时，遍历整个数组`nums`，判断`value - nums[i]`是否在`map`中：
   - 若在，还需要判断`map[value - nums[i]] == i`，这个是为了排除是否是数组中同一个元素的加和（题意是必须两个不同元素的加和）；因为如果add了两个相同的数字，那么`map[value - nums[i]]`一定大于`i`，因为在`add`操作中每次会刷新此数字的最新index。
   - 若不在，就继续遍历，直至遍历完`nums`。
-
 
 ```python []
 class TwoSum:
@@ -3517,15 +3606,13 @@ class TwoSum:
         """
         self.nums = []
         self.dic = {}
-    
 
     def add(self, number: int) -> None:
         """
         Add the number to an internal data structure..
         """
         self.nums.append(number)
-        self.dic[number] = len(self.nums) - 1
-        
+        self.dic[number] = len(self.nums) - 1  
 
     def find(self, value: int) -> bool:
         """
@@ -3536,6 +3623,7 @@ class TwoSum:
             if tar in self.dic and self.dic[tar] != i: return True
         return False
 ```
+
 ```java []
 class TwoSum {
     private Map<Integer, Integer> map;
@@ -3544,13 +3632,11 @@ class TwoSum {
     public TwoSum() {
         map = new HashMap<>();
     }
-    
     /** Add the number to an internal data structure.. */
     public void add(int number) {
         nums.add(number);
         map.put(number, nums.size() - 1);
     }
-    
     /** Find if there exists any pair of numbers which sum is equal to the value. */
     public boolean find(int value) {
         for(int i = 0; i < nums.size(); i++){
@@ -3565,8 +3651,8 @@ class TwoSum {
 ---
 
 ### 186. Reverse Words in a String II
-> 
->> 标签：字符串
+
+> 标签：字符串
 
 ---
 
@@ -3593,6 +3679,7 @@ class Solution:
             g = j - 1 - k + i
             s[k], s[g] = s[g], s[k]
 ```
+
 ```java []
 class Solution {
     public void reverseWords(char[] str) {
@@ -3618,14 +3705,967 @@ class Solution {
 
 ---
 
+### 200. Number of Islands
+
+> 标签：深度优先遍历DFS、广度优先遍历BFS
+
+---
+
+#### 思路一：深度优先遍历DFS
+
+- 目标是找到矩阵中“岛屿的数量”，上下左右相连的`1`都被认为是连续岛屿。
+- **dfs方法：** 设目前指针指向一个岛屿中的某一点`(i, j)`，寻找包括此点的岛屿边界。
+    - 从`(i, j)`向此点的上下左右`(i+1,j)`,`(i-1,j)`,`(i,j+1)`,`(i,j-1)`做深度搜索。
+    - 终止条件：
+        - `(i, j)`越过矩阵边界;
+        - `grid[i][j] == 0`，代表此分支已越过岛屿边界。
+    - 搜索岛屿的同时，执行`grid[i][j] = '0'`，即将岛屿所有节点删除，以免之后重复搜索相同岛屿。
+- **主循环：**
+    - 遍历整个矩阵，当遇到`grid[i][j] == '1'`时，从此点开始做深度优先搜索`dfs`，岛屿数`count + 1`且在深度优先搜索中删除此岛屿。
+- 最终返回岛屿数`count`即可。
+
+```python []
+class Solution:
+    def numIslands(self, grid: [[str]]) -> int:
+        def dfs(grid, i, j):
+            if not 0 <= i < len(grid) or not 0 <= j < len(grid[0]) or grid[i][j] == '0': return
+            grid[i][j] = '0'
+            dfs(grid, i + 1, j)
+            dfs(grid, i, j + 1)
+            dfs(grid, i - 1, j)
+            dfs(grid, i, j - 1)
+        count = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == '1':
+                    dfs(grid, i, j)
+                    count += 1
+        return count
+```
+
+```java []
+class Solution {
+    public int numIslands(char[][] grid) {
+        int count = 0;
+        for(int i = 0; i < grid.length; i++) {
+            for(int j = 0; j < grid[0].length; j++) {
+                if(grid[i][j] == '1'){
+                    dfs(grid, i, j);
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    private void dfs(char[][] grid, int i, int j){
+        if(i < 0 || j < 0 || i >= grid.length || j >= grid[0].length || grid[i][j] == '0') return;
+        grid[i][j] = '0';
+        dfs(grid, i + 1, j);
+        dfs(grid, i, j + 1);
+        dfs(grid, i - 1, j);
+        dfs(grid, i, j - 1);
+    }
+}
+```
+
+---
+
+#### 思路二：广度优先遍历BFS
+
+- 主循环和思路一类似，不同点是在于搜索某岛屿边界的方法不同。
+- **bfs方法：**
+    - 借用一个队列`queue`，判断队列首部节点`(i, j)`是否未越界且为`1`：
+        - 若是则置零（删除岛屿节点），并将此节点上下左右节点`(i+1,j)`,`(i-1,j)`,`(i,j+1)`,`(i,j-1)`加入队列；
+        - 若不是则跳过此节点；
+    - 循环`pop`队列首节点，直到整个队列为空，此时已经遍历完此岛屿。
+
+```python []
+class Solution:
+    def numIslands(self, grid: [[str]]) -> int:
+        def bfs(grid, i, j):
+            queue = [[i, j]]
+            while queue:
+                [i, j] = queue.pop(0)
+                if 0 <= i < len(grid) and 0 <= j < len(grid[0]) and grid[i][j] == '1':
+                    grid[i][j] = '0'
+                    queue += [[i + 1, j], [i - 1, j], [i, j - 1], [i, j + 1]]
+        count = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == '0': continue
+                bfs(grid, i, j)
+                count += 1
+        return count
+```
+
+```java []
+class Solution {
+    public int numIslands(char[][] grid) {
+        int count = 0;
+        for(int i = 0; i < grid.length; i++) {
+            for(int j = 0; j < grid[0].length; j++) {
+                if(grid[i][j] == '1'){
+                    bfs(grid, i, j);
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    private void bfs(char[][] grid, int i, int j){
+        Queue<int[]> list = new LinkedList<>();
+        list.add(new int[] { i, j });
+        while(!list.isEmpty()){
+            int[] cur = list.remove();
+            i = cur[0]; j = cur[1];
+            if(0 <= i && i < grid.length && 0 <= j && j < grid[0].length && grid[i][j] == '1') {
+                grid[i][j] = '0';
+                list.add(new int[] { i + 1, j });
+                list.add(new int[] { i - 1, j });
+                list.add(new int[] { i, j + 1 });
+                list.add(new int[] { i, j - 1 });
+            }
+        }
+    }
+}
+```
+
+---
+
+### 206. Reverse Linked List
+
+> 标签：链表、双指针
+
+---
+
+- 遍历链表，在遍历的过程中更新两个指针`pre`, `head`：
+    - `pre`, `head`分别指向前一个Node和当前Node，每次执行`head.next = pre`
+    - `nex`用于提前保存下一个Node。
+- 由于需要返回新的链表头部，所以设置跳出条件为`head.next == null`,跳出后将最后`head`指向`pre`，并返回`head`。
+
+```python []
+class Solution:
+    def reverseList(self, head: ListNode) -> ListNode:
+        if not head: return
+        pre = None
+        while head.next:
+            nex = head.next
+            head.next = pre
+            pre = head
+            head = nex
+        head.next = pre
+        return head
+```
+
+```java []
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if(head == null) return null;
+        ListNode pre = null, nex = null;
+        while(head.next != null) {
+            nex = head.next;
+            head.next = pre;
+            pre = head;
+            head = nex;
+        }
+        head.next = pre;
+        return head;
+    }
+}
+```
+
+---
+
+### 207. Course Schedule
+
+> 标签：拓扑排序，深度优先遍历，广度优先遍历
+
+---
+
+#### 解题思路：
+
+- 本题可约化为：课程安排图是否是**有向无环图(DAG)**。即课程间规定了前置条件，但不能构成任何环路，否则课程前置条件将不成立。
+- 思路是通过 **拓扑排序** 判断此课程安排图是否是 **有向无环图(DAG)**。
+    - 拓扑排序是对DAG的顶点进行排序，使得对每一条有向边 $(u, v)$ ，均有 $u$（在排序记录中）比 $v$ 先出现。亦可理解为对某点 $v$ 而言，只有当 $v$ 的所有源点均出现了，$v$ 才能出现。
+- 通过课程前置条件列表`prerequisites`可以得到课程安排图的 **邻接矩阵** `adjacency`。
+
+##### 方法1：入度表 / 广度优先遍历
+- **算法流程：**
+1. 统计课程安排图中每个节点的入度，生成 **入度表** `indegrees`。
+2. 借助一个队列`queue`，将所有入度为 $0$ 的节点入队。
+3. 当`queue`非空时，依次将队首节点出队，在课程安排图中删除此节点`pre`：
+    - 并不是真正从邻接表中删除此节点`pre`，而是将此节点对应所有邻接节点`cur`的入度 $-1$ ，即`indegrees[cur] -= 1`。
+    - 当入度 $-1$后邻接节点`cur`的入度为 $0$，说明`cur`所有的前驱节点已经被“删除”，此时将`cur`入队。
+4. 在每次`pre`出队时，执行`numCourses--`；
+    - 若整个课程安排图是有向无环图（即可以安排），则所有节点一定都入队/出队过，即完成拓扑排序。若有环，一定有节点的入度始终不为 $0$。
+    - 因此，拓扑排序出队次数等于课程个数，返回`numCourses == 0`判断课程是否可以成功安排。
+- **复杂度分析：** 
+    - 时间复杂度 $O(N + M)$，遍历一个图需要访问所有节点和所有临边，$N$ 和 $M$ 分别为节点数量和临边数量；
+    - 空间复杂度 $O(N)$，为建立邻接矩阵所需额外空间。
+
+<![Picture1.png](https://pic.leetcode-cn.com/90794a4bf4034a277621d9ca33f2df25c40f7ff0d9d47044396c44d166920a99-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/bd2f99fca16bd3a626153945a28ea8a75b151e6404d5525ad30202e19caab05c-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/cb061aa43f1fcd9ca23069a5712a58a5ace8636deaaab3e1536d14d173b0cdde-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/66300cbc4c966c866cd56934b74caaa1770cc25c8d80edf4c41eb00f67699155-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/7dc96bec8f3a5bb2b8bd75a3c7343b2753a70aedf3a7ffefa0019aa235fb9174-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/b907e91e670a0a077154f0b7b2a483f19cd6952f790ed2f1a3bab9ce389ca408-Picture6.png)>
+
+```Python []
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        indegrees = [0 for _ in range(numCourses)]
+        adjacency = [[] for _ in range(numCourses)]
+        queue = []
+        # Get the indegree and adjacency of every course.
+        for cur, pre in prerequisites:
+            indegrees[cur] += 1
+            adjacency[pre].append(cur)
+        # Get all the courses with the indegree of 0.
+        for i in range(len(indegrees)):
+            if not indegrees[i]: queue.append(i)
+        # BFS TopSort.
+        while queue:
+            pre = queue.pop(0)
+            numCourses -= 1
+            for cur in adjacency[pre]:
+                indegrees[cur] -= 1
+                if not indegrees[cur]: queue.append(cur)
+        return not numCourses
+```
+
+```Java []
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        int[] indegrees = new int[numCourses];
+        for(int[] cp : prerequisites) indegrees[cp[0]]++;
+        LinkedList<Integer> queue = new LinkedList<>();
+        for(int i = 0; i < numCourses; i++){
+            if(indegrees[i] == 0) queue.addLast(i);
+        }
+        while(!queue.isEmpty()) {
+            Integer pre = queue.removeFirst();
+            numCourses--;
+            for(int[] req : prerequisites) {
+                if(req[1] != pre) continue;
+                if(--indegrees[req[0]] == 0) queue.add(req[0]);
+            }
+        }
+        return numCourses == 0;
+    }
+}
+```
+
+---
+
+##### 方法2：深度优先遍历
+
+- **思路是通过 DFS 判断图中是否有环，算法流程如下：**
+1. 借助一个标志列表`flags`，用于判断每个节点`i`（课程）的状态：
+    1. 未被DFS访问：`i == 0`；
+    2. 已被其他节点启动的DFS访问：`i == -1`；
+    3. 已被当前节点启动的DFS访问：`i == 1`。
+2. 对`numCourses`个节点依次执行 DFS，判断每个节点起步 DFS 是否存在环，若存在环直接返回 $False$。DFS 流程；
+    1. 终止条件：
+        - 当`flag[i] == -1`，说明当前访问节点已被其他节点启动的DFS访问，无需再重复搜索，直接返回 $True$。
+        - 当`flag[i] == 1`，说明在本轮DFS搜索中节点`i`被第 $2$ 次访问，即**课程安排图有环**，直接返回$False$。
+    2. 将当前访问节点`i`对应`flag[i]`置 $1$，即标记其被本轮 DFS 访问过；
+    3. 递归访问当前节点`i`的所有邻接节点`j`，当发现环直接返回 $False$；
+    4. 当前节点所有邻接节点已被遍历，并没有发现环，则将当前节点`flag`置为 $-1$ 并返回 $True$。
+3. 若整个图DFS结束并未发现环，返回 $True$。
+
+- **复杂度分析：**
+    - 时间复杂度 $O(N + M)$：遍历一个图需要访问所有节点和所有临边，$N$ 和 $M$ 分别为节点数量和临边数量；
+    - 空间复杂度 $O(N)$，为建立邻接矩阵所需额外空间。
+
+<![Picture1.png](https://pic.leetcode-cn.com/787383a8e6ed9d18499837e3eb94c10a9e3de64a1f76259ded74a635b2ef0b12-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/ec5b41cea11ccbba143a4c0b4228ab6f099959dba0dc8c63271002d26daf676d-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/ef64799948518388fe829caf9338c9d079516dfa8fad0d6816774c551f6308e8-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/90842d993bc53d5a3ea4ad51f96b99a547c75bf5ae2431702567ae83241d97bd-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/b2d7e9eea81fa4fa3e610a60234b893e18c16b1771ec7d9a15c22a8102b03f4f-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/78e90e8f3ddde37440ac871b0c3bd8e27d94548b48da702598c5fe129bdac61c-Picture6.png),![Picture7.png](https://pic.leetcode-cn.com/14417b800e1dc9fe12f974e896e5394acb798ca35bd6dfad21ebbd92f63a2827-Picture7.png),![Picture8.png](https://pic.leetcode-cn.com/6130b9953454bdb48b504a1ecbf76ee1f3b4a0f88bc9de0cf93557c0f8dc85c3-Picture8.png),![Picture9.png](https://pic.leetcode-cn.com/722bc45d5dbe89105ad8c8ed09ee237b64e0ef681e09b55bdb083f7f1cffa26e-Picture9.png),![Picture10.png](https://pic.leetcode-cn.com/ccb8c7d911011f3f048683650534ad4e9981ee39c9becd7aa6133c99bac2fa8b-Picture10.png)>
+
+```Python []
+class Solution:
+    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+        def dfs(i, adjacency, flags):
+            if flags[i] == -1: return True
+            if flags[i] == 1: return False
+            flags[i] = 1
+            for j in adjacency[i]:
+                if not dfs(j, adjacency, flags): return False
+            flags[i] = -1
+            return True
+        adjacency = [[] for _ in range(numCourses)]
+        flags = [0 for _ in range(numCourses)]
+        for cur, pre in prerequisites:
+            adjacency[pre].append(cur)
+        for i in range(numCourses):
+            if not dfs(i, adjacency, flags): return False
+        return True
+```
+
+```Java []
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        int[][] adjacency = new int[numCourses][numCourses];
+        int[] flags = new int[numCourses];
+        for(int[] cp : prerequisites)
+            adjacency[cp[1]][cp[0]] = 1;
+        for(int i = 0; i < numCourses; i++){
+            if(!dfs(adjacency, flags, i)) return false;
+        }
+        return true;
+    }
+    private boolean dfs(int[][] adjacency, int[] flags, int i) {
+        if(flags[i] == 1) return false;
+        if(flags[i] == -1) return true;
+        flags[i] = 1;
+        for(int j = 0; j < adjacency.length; j++) {
+            if(adjacency[i][j] == 1 && !dfs(adjacency, flags, j)) return false;
+        }
+        flags[i] = -1;
+        return true;
+    }
+}
+```
+
+---
+
+### 215. Kth Largest Element in an Array
+
+> 标签：数组，堆排序
+
+---
+
+- 最简单的方法就是使用`sort()`对数组排序，然后直接返回`nums[len(nums) - k]`，此方法的时间复杂度为`O(nlogn)`；
+- 使用`堆`可以进一步降低复杂度至`O(nlogk)`，做法是：
+    - 建立一个小顶堆，先把`nums`中`[0, k)`的元素添加至小顶堆；
+    - 对于`[k, len(nums) - 1]`的元素，判断其与小顶堆堆顶元素大小关系，若大于则`push`进堆（每次`push`进堆时间复杂度为`O(logk)），并将堆顶元素`pop`，这样做是为了保证小顶堆中始终有`k`个元素；
+    - 根据以上机制，最终小顶堆中将会保存`最大的k个元素`，且堆顶为`此k元素里最小的那个`。
+- 最后返回堆顶即可。
+
+```python []
+import heapq
+class Solution:
+    def findKthLargest(self, nums: [int], k: int) -> int:
+        heap = []
+        for num in nums[:k]:
+            heapq.heappush(heap, num)
+        for num in nums[k:]:
+            if num > heap[0]:
+                heapq.heappop(heap)
+                heapq.heappush(heap, num)
+        return heap[0]
+```
+
+```java []
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        Queue<Integer> heap = new PriorityQueue<>();
+        for (int i = 0; i < k; i++)
+            heap.add(nums[i]);
+        for (int i = k; i < nums.length; i++) {
+            if (nums[i] > heap.peek()) {
+                heap.remove();
+                heap.add(nums[i]);
+            }
+        }
+        return heap.peek();
+    }
+}
+```
+
+---
+
+### 217. Contains Duplicate
+
+> 标签：哈希表
+
+---
+
+- 使用`set`或`HashMap`解，原理相同，都是利用其查询某元素为`O(1)`时间复杂度；
+    - 遍历`nums`，若`set`或`HashMap`中含有当前数字`n`，则直接返回`true`；
+    - 直到遍历完毕，返回`false`。
+- `Python`使用字典；`Java`使用`HashSet`。
+
+```python []
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        dic = {}
+        for n in nums:
+            if n in dic: return True
+            dic[n] = 1
+        return False
+```
+
+```java []
+class Solution {
+    public boolean containsDuplicate(int[] nums) {
+        Set<Integer> set = new HashSet<>(nums.length);
+        for(int n : nums){
+            if(set.contains(n)) return true;
+            set.add(n);
+        }
+        return false;
+    }
+}
+```
+
+---
+
+### 230. Kth Smallest Element in a BST
+
+> 标签：BST，中序遍历
+
+---
+
+- `二叉搜索树BST`有一个重要性质：`中序遍历`为排序数组，根据这个性质，我们可将问题转化为寻找中序遍历第 $k$ 个节点的值；
+- 实现的方法是建立两个全局变量`res`和`count`，分别用于存储答案与计数：
+    - 在每次访问节点时，执行`count` $-1$ ；
+    - 当`count == 0`时，代表已经到达第 $k$ 个节点，此时记录答案至`res`；
+- 找到答案后，已经不用继续遍历，因此每次判断`res`是否为空，若不为空直接返回。
+
+```python []
+class Solution:
+    def kthSmallest(self, root: TreeNode, k: int) -> int:
+        self.res, self.count = None, k
+        def inorder(root):
+            if not (root and self.count): return
+            inorder(root.left)
+            self.count -= 1
+            if not self.count: self.res = root.val
+            inorder(root.right)
+        inorder(root)
+        return self.res
+```
+
+```java []
+class Solution {
+    private int res, count;
+    public int kthSmallest(TreeNode root, int k) {
+        count = k;
+        inorder(root);
+        return res;
+    }
+    private void inorder(TreeNode root) {
+        if(root == null || count == 0) return;
+        inorder(root.left);
+        if(--count == 0) res = root.val;
+        inorder(root.right);
+    }
+}
+```
+
+---
+
+### 231. Power of Two
+
+> 标签：位运算
+
+---
+
+#### 解题思路：
+
+-  若满足 $n = 2^x$ 且 $x$ 为整数，则一定满足以下条件：
+    1. 恒有 `n & (n - 1) == 0` ，这是因为： 
+        - 二进制下， $n$ 最高位为 $1$ ，其余所有位为 $0$ ；
+        - 二进制下， $n - 1$ 最高位为 $0$ ，其余所有位为 $1$ ；
+    2. 一定有 $n > 0$ 。
+- 因此，通过 `n > 0` 且 `n & (n - 1) == 0` 即可判定是否满足 $n = 2^x$ 。
+
+| 2^x   | n      | n - 1  |
+| ----- | ------ | ------ |
+| $2^0$ | $0001$ | $0000$ |
+| $2^1$ | $0010$ | $0001$ |
+| $2^2$ | $0100$ | $0011$ |
+| $2^3$ | $1000$ | $0111$ |
+| ...   | ...    | ...    |
+
+#### 代码：
+
+```python []
+class Solution:
+    def isPowerOfTwo(self, n: int) -> bool:
+        return n > 0 and n & (n - 1) == 0
+```
+
+```java []
+class Solution {
+    public boolean isPowerOfTwo(int n) {
+        return n > 0 && (n & (n - 1)) == 0;
+    }
+}
+```
+
+---
+
+### 235. Lowest Common Ancestor of a Binary Search Tree
+
+> 标签：BST
+
+---
+
+- 给定`p`,`q`，最低的公共祖先有三种情况：
+    - `p`,`q`分别位于公共祖先的`左子树`和`右子树`；
+    - `p`为公共祖先，`q`在`p`的左右子树中；
+    - `q`为公共祖先，`p`在`q`的左右子树中。
+- 根据二叉搜索树性质，根节点值一定大于左树中所有子节点值、小于右树中所有子节点值；
+- 根据以上性质，此题是要在从上至下遍历二叉搜索树中，找第一个满足`p.val <= root.val <= q.val`的节点（设`p.val < q.val`）。
+
+```python []
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        if p.val > q.val: p, q = q, p
+        while root:
+            if root.val < p.val: root = root.right
+            elif root.val > q.val: root = root.left
+            else: return root
+```
+
+```java []
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        int pv = Math.min(p.val, q.val), qv = Math.max(p.val, q.val);
+        while (root != null) {
+            if (root.val < pv) root = root.right;
+            else if (root.val > qv) root = root.left;
+            else return root;
+        }
+        return null;
+    }
+}
+```
+
+---
+
+### 236. Lowest Common Ancestor of a Binary Tree
+
+> 标签：后序遍历
+
+---
+
+- 对二叉树做`后序遍历`，回溯：
+    - `回溯时：`捕获`mid`，即当前节点是否为`p`或`q`；
+        - 当 `left`  `right`  `mid` 三个中有两个为`True`时，说明当前节点是最近的公共节点，记录至`res`；
+    - `返回值：`左子树或右子树或当前节点中包含`p`或`q`；
+- 最终，返回最近公共节点`res`。
+
+```python []
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        self.res = None
+        self.dfs(root, p, q)
+        return self.res
+    def dfs(self, root, p, q):
+        if not root: return 0
+        left = self.dfs(root.left, p, q)
+        right = self.dfs(root.right,p ,q)
+        mid = root == p or root == q
+        if left + right + mid > 1: self.res = root
+        return left or right or mid
+```
+
+```java []
+class Solution {
+    TreeNode res = null;
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        dfs(root, p, q);
+        return res;
+    }
+    private int dfs(TreeNode root, TreeNode p, TreeNode q){
+        if(root == null) return 0;
+        int left = dfs(root.left, p, q);
+        int right = dfs(root.right, p, q);
+        int mid = root == p || root == q ? 1 : 0;
+        if(left + right + mid > 1) res = root;
+        return left + right + mid > 0 ? 1 : 0;
+    }
+}
+```
+
+---
+
+### 237. Delete Node in a Linked List
+
+> 标签：链表
+
+---
+
+- 由于只输入了需要删除的节点`node`，因此无法获取删除节点`node`的前一个节点`pre`，从而也就无法将前一个节点`pre`指向删除节点的下一个节点`nex`；
+- 既然无法通过修改指针完成，那么肯定要修改链表节点的`值`了。
+- 将删除节点`node`的值和指针都改为下一个节点`nex`的值和指针即可。
+
+```python []
+class Solution:
+    def deleteNode(self, node):
+        node.val = node.next.val
+        node.next = node.next.next
+```
+
+```java []
+class Solution {
+    public void deleteNode(ListNode node) {
+        node.val = node.next.val;
+        node.next = node.next.next;
+    }
+}
+```
+
+---
+
+### 238. Product of Array Except Self
+
+> 标签：
+
+---
+
+- 因为空间复杂度要求 $O(1)$、不能使用`除法`，因此一定需要在乘法过程中得到所有答案；
+- 我们可以将`res`数组列成乘积形式，形成一个矩阵，可以发现矩阵次主角线全部为 $1$ （因为当前数字不相乘，因此等价为乘 $1$ ）；
+- 因此，我们分别计算矩阵的`上三角`和`下三角`，并且在计算过程中储存过程值，最终可以在遍历 $2$ 遍`nums`下完成结果计算。
+
+| **res**    |        |        |     |          |          |
+| ---------- | ------ | ------ | --- | -------- | -------- |
+| res[0] =   | **1**  | num[1] | ... | num[n-2] | num[n-1] |
+| res[1] =   | num[0] | **1**  | ... | num[n-2] | num[n-1] |
+| ...        | ...    | ...    | ... | num[n-2] | num[n-1] |
+| res[n-2] = | num[0] | num[1] | ... | **1**    | num[n-1] |
+| res[n-1] = | num[0] | num[1] | ... | num[n-2] | **1**    |
+
+```python []
+class Solution:
+    def productExceptSelf(self, nums: [int]) -> [int]:
+        res, p, q = [1], 1, 1
+        for i in range(len(nums) - 1): # top triangle
+            p *= nums[i]
+            res.append(p)
+        for i in range(len(nums) - 1, 0, -1): # bottom triangle
+            q *= nums[i]
+            res[i - 1] *= q
+        return res
+```
+
+```java []
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int[] res = new int[nums.length];
+        int p = 1, q = 1;
+        for (int i = 0; i < nums.length; i++) {
+            res[i] = p;
+            p *= nums[i];
+        }
+        for (int i = nums.length - 1; i > 0 ; i--) {
+            q *= nums[i];
+            res[i - 1] *= q;
+        }
+        return res;
+    }
+}
+```
+
+---
+
+### 292. Nim Game
+
+> 标签：
+
+---
+
+- 每次可以扔 $1$ 或 $2$ 或 $3$ 个石头，并且自己先扔，因此可推出：
+    - **情况1：** 石头数量 $1,2,3$ 时，自己一定赢；
+    - **情况2：** 石头数量 $4$ 时，无论如何扔都会给对方留下 $1$ 次能扔完的数量（让对方落入 **情况1** ），因此对方一定赢。
+    - **情况3：** 石头数量 $5,6,7$ 时，自己总能在扔一次后，使对方落入 **情况2** ，因此自己一定赢；
+    - **情况4：** 石头数量 $8$ 时，自己在扔一次后，对方一定会落入 **情况3** ，因此对方一定赢；
+    - 以此类推……
+- 通过以上分析可以看出，当石头数量为 $4$ 的倍数时自己一定会输，其余情况一定会赢。
+
+```python []
+class Solution:
+    def canWinNim(self, n: int) -> bool:
+        return n % 4 != 0
+```
+
+```java []
+class Solution {
+    public boolean canWinNim(int n) {
+        return n % 4 != 0;
+    }
+}
+```
+
+---
+
+### 330. Patching Array
+
+> 标签：数组，贪心算法
+
+---
+
+- **补齐数组特点：**
+    - 假设数组 $arr$ 添加一个元素即可覆盖 $[1, n)$ 内所有数字，那么添加的数字 $m$ 一定满足`m <= n`。
+    - 假设数组 $arr$ 可以覆盖 $[1, n)$ 的所有数字，则给 $arr$ 内加元素 $m$ ：
+        - 若`m <= n`，新数组可以覆盖`[1, m + n) = [1, n) ∪ [m, m + n)`内所有数字；
+- **贪心法则：** 对于一个覆盖 $[1, n)$ 的数组 $arr$ 来说，添加数字 $n$ 连续扩容范围最大（扩容至 $[1, 2n)$ ）。
+- **思路：** 设置一个初始范围 $[1, 1)$ ，通过不断确认并扩大数组可以覆盖的范围，最终计算出最少需要加入的数字。
+    - 当`i < len(nums)`且`nums[i] <= add`时：不需要加入新数字，循环确认并更新数组可以覆盖的范围`[1, add + nums[i])`，直到找到大于确认范围 $add$ 的 $nums[i]$ 或索引越界。
+    - 否则：无法根据现有数字构建更大的连续范围，，因此需要使用贪心策略向数组加入数字 $add$ ，将数组从覆盖 $[1, add)$ 扩容至可覆盖 $[1, 2add)$ 。
+    - 直到确认的范围`add > n`，说明此时已经覆盖 $[1, n]$ ，退出迭代并返回。
+
+```python []
+class Solution:
+    def minPatches(self, nums: List[int], n: int) -> int:
+        add, i, count = 1, 0, 0
+        while add <= n:
+            if i < len(nums) and nums[i] <= add:
+                add += nums[i] # from [1, add] to [1, add + nums[i]]
+                i += 1
+            else:
+                add += add # from [1, add] to [1, 2add]
+                count += 1
+        return count
+```
+
+```java []
+class Solution {
+    public int minPatches(int[] nums, int n) {
+        int i = 0, count = 0;
+        long add = 1;
+        while(add <= n){
+            if(i < nums.length && nums[i] <= add) add += nums[i++];
+            else {
+                add += add;
+                count ++;
+            }
+        }
+        return count;
+    }
+}
+```
+
+---
+
+### 344. Reverse String
+
+> 标签：字符串，双指针
+
+---
+
+- 设置两指针`i` `j`分别位于String两端，向中心逼近并交换字符即可。
+
+```python []
+class Solution:
+    def reverseString(self, s: List[str]) -> None:
+        i, j = 0, len(s) - 1
+        while i < j:
+            s[i], s[j] = s[j], s[i]
+            i, j = i + 1, j - 1
+```
+
+```java []
+class Solution {
+    public void reverseString(char[] s) {
+        int i = 0, j = s.length - 1;
+        while(i < j) {
+            char tmp = s[i];
+            s[i] = s[j];
+            s[j] = tmp;
+            i++; j--;
+        }
+    }
+}
+```
+
+---
+
+### 394. Decode String
+
+> 标签：栈、递归
+
+---
+
+#### 解法一：辅助栈法
+
+- 本题难点在于括号内嵌套括号，需要**从内向外**生成与拼接字符串，这与栈的**先入后出**特性对应。
+- **算法流程：**
+    1. 构建辅助栈`stack`, 遍历字符串`s`中每个字符`c`；
+        - 当`c`为数字时，将数字字符转化为数字`multi`，用于后续倍数计算；
+        - 当`c`为字母时，在`res`尾部添加`c`；
+        - 当`c`为`[`时，将当前`multi`和`res`入栈，并分别置空置 $0$：
+            - 记录此`[`前的临时结果`res`至栈，用于发现对应`]`后的拼接操作；
+            - 记录此`[`前的倍数`multi`至栈，用于发现对应`]`后，获取`multi × [...]`字符串。
+            - 进入到新`[`后，`res`和`multi`重新记录。
+        - 当`c`为`]`时，`stack`出栈，拼接字符串`res = last_res + cur_multi * res`，其中:
+            - `last_res`是上个`[`到当前`[`的字符串，例如`"3[a2[c]]"`中的`a`；
+            - `cur_multi`是当前`[`到`]`内字符串的重复倍数，例如`"3[a2[c]]"`中的`2`。
+    2. 返回字符串`res`。
+
+- **复杂度分析：**
+    - 时间复杂度 $O(N)$，一次遍历`s`；
+    - 空间复杂度 $O(N)$，辅助栈在极端情况下需要线性空间，例如`2[2[2[a]]]`。
+
+<![Picture1.png](https://pic.leetcode-cn.com/8c8d2fcc8ffcaa88b2f178e21e368c17d68298af0212daedddb1a431c4c0977e-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/c352fdf64535d0f167bff6978891cb28a179f430671dc2e657784cae07a7297a-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/8328efe852d10a148a255f038029f6e89342b3ed249da97b18913c8eb999e693-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/16007271dd7a9ec6cf21af3e53303a081f0e5b370107df3d35522f263c0f6382-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/e3d8b9b5113b8df61db539083d6b882bade19cea99dd9ea153f8cb13c66ec035-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/b803ce94a9bb8cc47812cf9c2a8d05598db28f2fd8aa2450ce3c788eb2640683-Picture6.png),![Picture7.png](https://pic.leetcode-cn.com/3eed0fe6407c8d767be54aa49b0a722c14d843fd50b236af5074e71a2f640ca6-Picture7.png),![Picture8.png](https://pic.leetcode-cn.com/b94aefc640cbf53682697e9114513c73e90dc12dcaf4d57b35d8c8a1e6fcad1e-Picture8.png)>
+
+```python []
+class Solution:
+    def decodeString(self, s: str) -> str:
+        stack, res, multi = [], "", 0
+        for c in s:
+            if c == '[':
+                stack.append([multi, res])
+                res, multi = "", 0
+            elif c == ']':
+                cur_multi, last_res = stack.pop()
+                res = last_res + cur_multi * res
+            elif '0' <= c <= '9':
+                multi = multi * 10 + int(c)
+            else:
+                res += c
+        return res
+```
+
+```java []
+class Solution {
+    public String decodeString(String s) {
+        StringBuilder res = new StringBuilder();
+        int multi = 0;
+        LinkedList<Integer> stack_multi = new LinkedList<>();
+        LinkedList<String> stack_res = new LinkedList<>();
+        for(Character c : s.toCharArray()) {
+            if(c == '[') {
+                stack_multi.addLast(multi);
+                stack_res.addLast(res.toString());
+                multi = 0;
+                res = new StringBuilder();
+            }
+            else if(c == ']') {
+                StringBuilder tmp = new StringBuilder();
+                int cur_multi = stack_multi.removeLast();
+                for(int i = 0; i < cur_multi; i++) tmp.append(res);
+                res = new StringBuilder(stack_res.removeLast() + tmp);
+            }
+            else if(c >= '0' && c <= '9') multi = multi * 10 + Integer.parseInt(c + "");
+            else res.append(c);
+        }
+        return res.toString();
+    }
+}
+```
+
+---
+
+#### 解法二：递归法
+
+- 总体思路与辅助栈法一致，不同点在于将`[`和`]`分别作为递归的开启与终止条件：
+    - 当`s[i] == ']'`时，返回当前括号内记录的`res`字符串与`]`的索引`i`（更新上层递归指针位置）；
+    - 当`s[i] == '['`时，开启新一层递归，记录此`[...]`内字符串`tmp`和递归后的最新索引`i`，并执行`res + multi * tmp`拼接字符串。
+    - 遍历完毕后返回`res`。
+
+- **复杂度分析：**
+    - 时间复杂度 $O(N)$，递归会更新索引，因此实际上还是一次遍历`s`；
+    - 空间复杂度 $O(N)$，极端情况下递归深度将会达到线性级别。
+
+```python []
+class Solution:
+    def decodeString(self, s: str) -> str:
+        def dfs(s, i):
+            res, multi = "", 0
+            while i < len(s):
+                if '0' <= s[i] <= '9':
+                    multi = multi * 10 + int(s[i])
+                elif s[i] == '[':
+                    i, tmp = dfs(s, i + 1)
+                    res += multi * tmp
+                    multi = 0
+                elif s[i] == ']':
+                    return i, res
+                else:
+                    res += s[i]
+                i += 1
+            return res
+        return dfs(s,0)
+```
+
+```java []
+class Solution {
+    public String decodeString(String s) {
+        return dfs(s, 0)[0];
+    }
+    private String[] dfs(String s, int i) {
+        StringBuilder res = new StringBuilder();
+        int multi = 0;
+        while(i < s.length()) {
+            if(s.charAt(i) >= '0' && s.charAt(i) <= '9') 
+                multi = multi * 10 + Integer.parseInt(String.valueOf(s.charAt(i))); 
+            else if(s.charAt(i) == '[') {
+                String[] tmp = dfs(s, i + 1);
+                i = Integer.parseInt(tmp[0]);
+                while(multi > 0) {
+                    res.append(tmp[1]);
+                    multi--;
+                }
+            }
+            else if(s.charAt(i) == ']') 
+                return new String[] { String.valueOf(i), res.toString() };
+            else
+                res.append(String.valueOf(s.charAt(i)));
+            i++;
+        }
+        return new String[] { res.toString() };
+    }
+}
+```
+
+---
+
+### 415. Add Strings
+
+> 标签：字符串，双指针
+
+---
+
+#### 解题思路：
+
+- 设定 `i`，`j` 两指针分别指向 `num1`，`num2` 尾部，模拟人工加法过程 `tmp = n1 + n2 + carry` ：
+    - **添加每位结果：** 将每位结果 `tmp % 10` 添加至 `res` 头部；
+    - **计算进位：** `carry = tmp // 10` 代表相加是否产生进位；
+    - 当指针 `i`，`j` 走过 `num1`，`num2` 头部后，将 `n1`，`n2` 置 $0$，相当于给较短的数字前面填 $0$ ，以便后续计算。
+- 当遍历完 `num1`，`num2` 后跳出循环，并根据`carry`值决定是否在头部填 $1$ ，最终返回 `res` 即可。
+
+#### 代码：
+
+```python []
+class Solution:
+    def addStrings(self, num1: str, num2: str) -> str:
+        res = ""
+        i, j, carry = len(num1) - 1, len(num2) - 1, 0
+        while i >= 0 or j >= 0:
+            n1 = int(num1[i]) if i >= 0 else 0
+            n2 = int(num2[j]) if j >= 0 else 0
+            tmp = n1 + n2 + carry
+            carry = tmp // 10
+            res = str(tmp % 10) + res
+            i, j = i - 1, j - 1
+        return "1" + res if carry else res
+```
+
+```java []
+class Solution {
+    public String addStrings(String num1, String num2) {
+        StringBuilder res = new StringBuilder("");
+        int i = num1.length() - 1, j = num2.length() - 1, carry = 0;
+        while(i >= 0 || j >= 0){
+            int n1 = i >= 0 ? num1.charAt(i) - '0' : 0;
+            int n2 = j >= 0 ? num2.charAt(j) - '0' : 0;
+            int tmp = n1 + n2 + carry;
+            carry = tmp / 10;
+            res.append(tmp % 10);
+            i--; j--;
+        }
+        if(carry == 1) res.append(1);
+        return res.reverse().toString();
+    }
+}
+```
+
+---
+
 ### 557. Reverse Words in a String III
-> 
->> 标签：字符串，双指针
+
+> 标签：字符串，双指针
 
 ---
 
 - `left`, `right`双指针通过空格定位每个单词，并翻转每个单词；
-- Python可一行。
+- Python可一行解决。
 
 ```python []
 class Solution:
@@ -3641,11 +4681,13 @@ class Solution:
             i += 1
         return "".join(l[:-1])
 ```
-```python[]
+
+```python []
 class Solution:
     def reverseWords(self, s: str) -> str:
         return ' '.join(i[::-1] for i in s.split())
 ```
+
 ```java []
 class Solution557 {
     public String reverseWords(String s) {
@@ -3656,23 +4698,74 @@ class Solution557 {
             res.append(" ");
             res.append(tmp.reverse().toString());
         }
-        return res.toString().trim();    
+        return res.toString().trim();
     }
 }
 ```
 
 ---
 
-### 
-> 
->> 标签：
+### 860. Lemonade Change
+
+> 标签：贪心算法
 
 ---
 
+- 题意是模拟与顾客的收钱找零动作，需要明确：
+    - 一个柠檬5元，因此顾客付10元找5元，付20元找15元；
+    - 找零方案有：`10 = (5) + 5`，`20 = (10+5) + 5 = (5+5+5) + 5`，其中小括号中是找零部分。可以看出，10元只能用5元找零，而20元则可以用10元或5元找零并有两种组合。
+    - 贪心策略：需要尽可能地多留5元在手上，防止10元的顾客无法找零。
+- 模拟过程，如果顾客付5元则记录，付10元则找`5`元，付20则优先找`10+5`若没有则找`5+5+5`。
+- 在模拟过程中，若发现手上没有足够的零钱找零，则直接返回`false`。
 
+```python []
+class Solution:
+    def lemonadeChange(self, bills: List[int]) -> bool:
+        five, ten = 0, 0
+        for b in bills:
+            if b == 5:
+                five += 1
+            elif b == 10:
+                if not five: return False
+                five -= 1
+                ten += 1
+            else:
+                if ten and five:
+                    ten -= 1
+                    five -= 1
+                elif five > 2:
+                    five -= 3
+                else:
+                    return False
+        return True
+```
+
+```java []
+class Solution {
+    public boolean lemonadeChange(int[] bills) {
+        int five = 0, ten = 0;
+        for(int b : bills){
+            if(b == 5) five ++;
+            else if(b == 10) {
+                if(five-- == 0) return false;
+                ten++;
+            }
+            else {
+                if(five > 0 && ten > 0){
+                    five--; ten--;
+                }
+                else if(five > 2){
+                    five -= 3;
+                }
+                else return false;
+            }
+        }
+        return true;
+    }
+}
+```
 
 ---
-
 
 ## Sword Offer
 All 66 problems of 剑指offer are solved using [Python](./swordoffer_python), and the following is the details of [剑指offer全题目解析](https://blog.csdn.net/weixin_42736373/article/details/88934930). To `Ctri + F` the topic of the problems is recommended.
