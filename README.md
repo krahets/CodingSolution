@@ -247,7 +247,6 @@ class Solution {
 
 ---
 
-
 ### 8. String to Integer (atoi)
 
 > 标签：字符串
@@ -2739,27 +2738,31 @@ public class Solution {
 
 ---
 
-#### 解题思路
+#### 解题思路：
 
 - **构建双指针第一次相遇：** 
-    - 设两指针`fast`,`slow`指向链表头部`head`，`fast`每轮走 $2$ 步，`slow`每轮走一步；
-    - 若`fast`指针走过链表末端，说明链表无环，直接返回`null`；
+    - 设两指针`fast`,`slow`指向链表头部`head`，`fast`每轮走 $2$ 步，`slow`每轮走 $1$ 步；
+    - 若`fast`指针走过链表末端，说明链表无环，直接返回`null`（因为每走 $1$ 轮，`fast`与`slow`的间距 $+1$ ，若有环，快慢两指针终会相遇）；
     - 当`fast == slow`时，代表两指针在环中 **第一次相遇** ，此时执行 $break$ 跳出迭代；
-- **第一次相遇步数分析：** 
-    - 设两指针分别走了 $f$ , $s$ 步，设链表头部到环需要走 $a$ 步，链表环长度 $b$ 步；
-    - 快指针走了慢指针 $2$ 倍的路程 $f = 2s$ ，快指针比慢指针多走了 $n$ 个环的长度 $f = s + nb$（因为每走一轮，`fast`与`slow`的 **间距** $+1$ ，若有环，快慢两指针终会相遇）；
-    - 因此可推出： $f = 2nb$ , $s = nb$ ，即两指针分别走了 $2n$ 个环、 $n$ 个环的周长。
+    - **第一次相遇时步数分析：** 
+        - 设两指针分别走了 $f$ , $s$ 步，设链表头部到环需要走 $a$ 步，链表环走一圈需要 $b$ 步；
+        - 快指针走了慢指针 $2$ 倍的路程，即 $f = 2s$ ；
+        - 快指针比慢指针多走了 $n$ 个环的长度，即 $f = s + nb$ ；
+        - 代入可推出： $f = 2nb$ , $s = nb$ ，即快慢指针分别走了 $2n$ , $n$ 个环的周长。
+
 - **构建双指针第二次相遇：** 
-    - 将`fast`指针重新指向链表头部`head`，`slow`指针位置不变，双指针一起向前走（每轮走 $1$ 步）；
-    - 当`fast`指针走到 $a$ 步时，`slow`指针正好走到 $a + nb$ 步，即 **两指针重合并同时指向链表环入口** 。
-- 最终返回`fast`或`slow`即可。
+    - 将`fast`指针重新指向链表头部`head`，`slow`指针位置不变，此时`fast`走了 $0$ 步， `slow`指针走了 $nb$ 步；
+    - 令双指针一起向前走，两指针每轮都走 $1$ 步；
+    - 当`fast`指针走到 $a$ 步时，`slow`指针正好走到 $a + nb$ 步，此时 **两指针重合并同时指向链表环入口** 。
+    - 最终返回`fast`或`slow`即可。
+
 - **复杂度分析：**
-    - 时间复杂度 $O(N)$ ：第二次相遇中，慢指针须走步数 $a < a + b$ ；第一次相遇中，慢指针须走步数 $a + b - x < a + b$，其中 $x$ 为双指针重合点与环入口距离；因此总体为线性复杂度；
-    - 空间复杂度 $O(1)$ ：双指针使用常数大小的额外空间。
+    - **时间复杂度** $O(N)$ ：第二次相遇中，慢指针须走步数 $a < a + b$ ；第一次相遇中，慢指针须走步数 $a + b - x < a + b$，其中 $x$ 为双指针重合点与环入口距离；因此总体为线性复杂度；
+    - **空间复杂度** $O(1)$ ：双指针使用常数大小的额外空间。
 
 <![Picture1.png](https://pic.leetcode-cn.com/a4788076d4f3ad247c2023f92bb1585d05c5132ece7ed1205e2e171e25648adc-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/4ccc10d8af901acf43f4db0e5cd0e3c537aeb2346f57ad66c92cb9cbba0f1f73-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/5bfd893f81962daed27dd9fc3c96e426b168f4e940e5ab7541c323ee416548ec-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/387bfbbe71b3f1d462f72472b8168b894b7c41907e8a66bb770cd7a7ad04d48d-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/54d3a446f6acf92de2e51e639fb4f05abffa468334a778bd74c63f990cd73276-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/9a319387f7fe8d3c3acb9d6bc0bc9f7471ccff6699115db724a99d2acb7b68ca-Picture6.png),![Picture7.png](https://pic.leetcode-cn.com/f3977a8e28b45952e01334c1c86d70e3e822c913f81318108052aea81e365788-Picture7.png),![Picture8.png](https://pic.leetcode-cn.com/114969493875dcdca1d1bea8fb997643975d25b4ddb185dd071a185ed435cccd-Picture8.png),![Picture9.png](https://pic.leetcode-cn.com/c7ab2f7023d5f8c7fcae71280b56c1ec6acf65f634ef82d61713fcff1ea2ee75-Picture9.png),![Picture10.png](https://pic.leetcode-cn.com/af490a825982d42be6baf7e87a3e1cf181420bb9f46aa0ccbb190719c8b4dd92-Picture10.png),![Picture11.png](https://pic.leetcode-cn.com/f31767986757b751bfec07f824714044611b4a54bf8e794b2f4684a175dde044-Picture11.png)>
 
-#### 代码
+#### 代码：
 
 ```python []
 class Solution(object):
@@ -2813,7 +2816,7 @@ public class Solution {
     - 若哈希表中已存在此`key`，先将此`key`移动至链表尾部（代表为最新元素）；
     - 若`key`不在哈希表中，则判断双向链表当前元素个数是否等于容量`capacity`大小：若等于则将最老元素（链表首部元素）从哈希表和双向链表中删除；
         - 此步`Python`调用`self.dic.popitem(0)`实现，`Java`通过重写`LinkedHashMap`类中的`removeEldestEntry()`方法实现。
-    - 在哈希表中加入此键值对，并在链表末端加入此`key`。 
+    - 在哈希表中加入此键值对，并在链表末端加入此`key`。
 
 ```python []
 class LRUCache:
@@ -4614,11 +4617,17 @@ class Solution {
 
 #### 解题思路：
 
-- 设定 `i`，`j` 两指针分别指向 `num1`，`num2` 尾部，模拟人工加法过程 `tmp = n1 + n2 + carry` ：
-    - **添加每位结果：** 将每位结果 `tmp % 10` 添加至 `res` 头部；
-    - **计算进位：** `carry = tmp // 10` 代表相加是否产生进位；
-    - 当指针 `i`，`j` 走过 `num1`，`num2` 头部后，将 `n1`，`n2` 置 $0$，相当于给较短的数字前面填 $0$ ，以便后续计算。
-- 当遍历完 `num1`，`num2` 后跳出循环，并根据`carry`值决定是否在头部填 $1$ ，最终返回 `res` 即可。
+- **算法流程：** 设定 `i`，`j` 两指针分别指向 `num1`，`num2` 尾部，模拟人工加法；
+    - **计算进位：** 计算`carry = tmp // 10` ，代表当前位相加是否产生进位；
+    - **添加每位：** 计算`tmp = n1 + n2 + carry`，并将当前位 `tmp % 10` 添加至 `res` 头部；
+    - **索引溢出处理：** 当指针 `i`或`j` 走过数字首部后，给 `n1`，`n2` 赋值为 $0$，相当于给`num1`，`num2`中长度较短的数字前面填 $0$ ，以便后续计算。
+    - 当遍历完 `num1`，`num2` 后跳出循环，并根据`carry`值决定是否在头部添加进位 $1$ ，最终返回 `res` 即可。
+
+- **复杂度分析：**
+    - 时间复杂度 $O(max(M,N))$ ：按位遍历一遍数字，以较长的数字为准；
+    - 空间复杂度 $O(1)$ ： 指针与变量使用常数大小空间。
+
+<![Picture1.png](https://pic.leetcode-cn.com/ae367453af71c81803a1e9beee90495a19a406eacbb33f532acdf241f5297fed-Picture1.png),![Picture2.png](https://pic.leetcode-cn.com/113d975b781eae7a19258478e65e0017cfba5328af70eadd6d69e608ea7b7c94-Picture2.png),![Picture3.png](https://pic.leetcode-cn.com/b665de7e41201cedafc678c65f26eebbf6bcba2e051e6bf365a60b06d64ebd4f-Picture3.png),![Picture4.png](https://pic.leetcode-cn.com/f4423cda696c16e92de8804a72114154e3aa9b65a183dae5ccdbcbd7fb0c9aa4-Picture4.png),![Picture5.png](https://pic.leetcode-cn.com/a46f2e9cfae9875686d8b7a90b1966345ff1c85a064fccb2723f6657470910ab-Picture5.png),![Picture6.png](https://pic.leetcode-cn.com/e9e655ac9f21da0c59822e1ccb2782ad29f123964ead0b91ca9dfe2f4407fb97-Picture6.png),![Picture7.png](https://pic.leetcode-cn.com/23ffeeedcf0c11dece507bfd801c4af14f7888c2474cb08e4278a3bf27528541-Picture7.png),![Picture8.png](https://pic.leetcode-cn.com/921c2d55581204b62c7af8fcbadf2716656bb4b454b2641973f9a1286999a89b-Picture8.png)>
 
 #### 代码：
 
@@ -4765,6 +4774,7 @@ class Solution {
 }
 ```
 
+---
 ---
 
 ## Sword Offer
@@ -6820,13 +6830,12 @@ class Solution:
         return m
 ```
 
-------
-
+---
 
 ## [Source:牛客网剑指offer](https://www.nowcoder.com/ta/coding-interviews)
 
+---
 
-------
 #### 知识图谱：
 
 数组
@@ -6861,10 +6870,7 @@ class Solution:
 图
 拓扑排序
 
-============
-
 极小化极大
 蓄水池抽样
 几何
-
 并查集

@@ -16,9 +16,6 @@ class Solution:
             num -= count * values[i]
             i += 1
         return res
-            
-            
-
 
 s = Solution()
 print(s.intToRoman(1994))
