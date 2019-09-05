@@ -1,6 +1,8 @@
 # CodingSolution
 
 This repository includes coding solutions of Leetcode and 剑指offer using Python and Java.
+> 如果您喜欢我的题解，请Star~
+> 欢迎留言，我会认真尽快回复。
 
 ## LeetCode
 
