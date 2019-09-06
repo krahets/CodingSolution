@@ -20,7 +20,7 @@ class Solution:
                 if tails[m] < num: i = m + 1 # 如果要求非严格递增，将此行 '<' 改为 '<=' 即可。
                 else: j = m
             tails[i] = num
-            res = max(i + 1, res)
+            if j == res: res += 1
         return res
 
 s = Solution()

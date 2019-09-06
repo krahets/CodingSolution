@@ -29,7 +29,7 @@ class Solution {
                 else j = m;
             }
             tails[i] = num;
-            res = Math.max(res, i + 1);
+            if(res == i) res++;
         }
         return res;
     }
