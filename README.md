@@ -1,7 +1,7 @@
 # CodingSolution
 
 This repository includes coding solutions of Leetcode and 剑指offer using Python and Java.
-> 如果您喜欢我的题解，请Star~
+> 如果您喜欢我的题解请SATR~ (>_<)
 > 欢迎留言，我会认真尽快回复。
 
 ## LeetCode
@@ -3599,7 +3599,7 @@ class Solution {
 - HashMap法：时间复杂度`O(N)`，空间复杂度`O(N)`；
 - `add`：在将数字添加进`nums`数组的同时，将数字作为`key`存入`map`，`map`的`value`存此数字在数组的位置；
 - `find`：在搜索是否有加和时，遍历整个数组`nums`，判断`value - nums[i]`是否在`map`中：
-  - 若在，还需要判断`map[value - nums[i]] == i`，这个是为了排除是否是数组中同一个元素的加和（题意是必须两个不同元素的加和）；因为如果add了两个相同的数字，那么`map[value - nums[i]]`一定大于`i`，因为在`add`操作中每次会刷新此数字的最新index。
+  - 若在，还需要判断`map[value - nums[i]] == i`，这个是为了排除是否是数组中��一个元素的加和（题意是必须两个不同元素的加和）；因为如果add了两个相同的数字，那么`map[value - nums[i]]`一定大于`i`，因为在`add`操作中每次会刷新此数字的最新index。
   - 若不在，就继续遍历，直至遍历完`nums`。
 
 ```python []
